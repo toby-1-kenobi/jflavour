@@ -6,8 +6,10 @@ package org.sil.jflavourapi;
 
 import java.beans.*;
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -26,8 +28,17 @@ public class JFlavourProjectBean implements Serializable
     public JFlavourProjectBean()
     {
         name = "";
-        items = new LinkedList<JFlavourItemBean>();
+        items = new ArrayList<JFlavourItemBean>(100);
         propertySupport = new PropertyChangeSupport(this);
+    }
+    
+    public SortedSet<String> getCategories()
+    {
+        SortedSet<String> allCategories = new TreeSet<String>();
+        for (JFlavourItemBean item : items) {
+            allCategories.addAll(item.getCategories());
+        }
+        return allCategories;
     }
     
     public String getName()

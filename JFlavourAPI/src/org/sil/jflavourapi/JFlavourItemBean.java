@@ -6,7 +6,7 @@ package org.sil.jflavourapi;
 
 import java.beans.*;
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,9 +26,9 @@ public class JFlavourItemBean implements Serializable
     public JFlavourItemBean()
     {
         label = "";
-        categories = new LinkedList<String>();
-        audioFilePaths = new LinkedList<String>();
-        imageFilePaths = new LinkedList<String>();
+        categories = new ArrayList<String>(5);
+        audioFilePaths = new ArrayList<String>(5);
+        imageFilePaths = new ArrayList<String>(5);
         propertySupport = new PropertyChangeSupport(this);
     }
     
