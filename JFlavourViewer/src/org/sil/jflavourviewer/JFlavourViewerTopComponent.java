@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.SortedSet;
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 import org.openide.util.LookupEvent;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -56,6 +55,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         categoryList = new javax.swing.JList();
+
+        jSplitPane1.setDividerLocation(100);
 
         jScrollPane1.setViewportView(categoryList);
 
