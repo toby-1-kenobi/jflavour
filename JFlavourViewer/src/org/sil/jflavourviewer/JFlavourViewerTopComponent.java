@@ -42,7 +42,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(JFlavourViewerTopComponent.class, "HINT_JFlavourViewerTopComponent"));
         categoriesListModel = new DefaultListModel<String>();
-
+        categoryList.setModel(categoriesListModel);
     }
 
     /** This method is called from within the constructor to
