@@ -55,12 +55,16 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         categoryList = new javax.swing.JList();
+        tmpLabel = new javax.swing.JLabel();
 
         jSplitPane1.setDividerLocation(100);
 
         jScrollPane1.setViewportView(categoryList);
 
         jSplitPane1.setLeftComponent(jScrollPane1);
+
+        org.openide.awt.Mnemonics.setLocalizedText(tmpLabel, org.openide.util.NbBundle.getMessage(JFlavourViewerTopComponent.class, "JFlavourViewerTopComponent.tmpLabel.text")); // NOI18N
+        jSplitPane1.setRightComponent(tmpLabel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -78,6 +82,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     private javax.swing.JList categoryList;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JLabel tmpLabel;
     // End of variables declaration//GEN-END:variables
     private Lookup.Result<JFlavourProjectBean> result = null;
     private DefaultListModel<String> categoriesListModel;
@@ -120,6 +125,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             for (Iterator<String> it = categories.iterator(); it.hasNext();) {
                 categoriesListModel.addElement(it.next());
             }
+            tmpLabel.setText(project.getName());
         } else {
             // TODO what to display when no project is loaded
         }

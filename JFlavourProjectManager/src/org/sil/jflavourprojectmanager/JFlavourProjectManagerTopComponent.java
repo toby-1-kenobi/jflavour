@@ -12,6 +12,8 @@ import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -23,7 +25,7 @@ autostore = false)
 @TopComponent.Description(preferredID = "JFlavourProjectManagerTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "explorer", openAtStartup = true)
+@TopComponent.Registration(mode = "properties", openAtStartup = true)
 @ActionID(category = "Window", id = "org.sil.jflavourprojectmanager.JFlavourProjectManagerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourProjectManagerAction",
@@ -36,8 +38,11 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         initComponents();
         setName(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "CTL_JFlavourProjectManagerTopComponent"));
         setToolTipText(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "HINT_JFlavourProjectManagerTopComponent"));
-        projectsListModel = new DefaultListModel();
+        projectsListModel = new DefaultListModel<String>();
+        projectList.setModel(projectsListModel);
         populateProjectList();
+        lookupContent = new InstanceContent();
+        associateLookup(new AbstractLookup(lookupContent));
     }
 
     /** This method is called from within the constructor to
@@ -50,7 +55,7 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
 
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
+        projectList = new javax.swing.JList();
         jPanel1 = new javax.swing.JPanel();
         tfProjectName = new javax.swing.JTextField();
         btnProjectExport = new javax.swing.JButton();
@@ -59,15 +64,15 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
 
         jSplitPane1.setDividerLocation(100);
 
-        jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(jList1);
+        projectList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(projectList);
 
         jSplitPane1.setLeftComponent(jScrollPane1);
 
         tfProjectName.setText(org.openide.util.NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "JFlavourProjectManagerTopComponent.tfProjectName.text")); // NOI18N
-        tfProjectName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tfProjectNameActionPerformed(evt);
+        tfProjectName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                tfProjectNameKeyTyped(evt);
             }
         });
 
@@ -93,7 +98,7 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
                     .addComponent(btnProjectExport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnImport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnNew, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(202, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -123,26 +128,27 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void tfProjectNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfProjectNameActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_tfProjectNameActionPerformed
-
 private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
     newProject();
 }//GEN-LAST:event_btnNewActionPerformed
+
+private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfProjectNameKeyTyped
+    currentProject.setName(tfProjectName.getText());
+}//GEN-LAST:event_tfProjectNameKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnImport;
     private javax.swing.JButton btnNew;
     private javax.swing.JButton btnProjectExport;
-    private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JList projectList;
     private javax.swing.JTextField tfProjectName;
     // End of variables declaration//GEN-END:variables
     private DefaultListModel<String> projectsListModel;
     private JFlavourProjectBean currentProject;
+    private InstanceContent lookupContent;
     
     @Override
     public void componentOpened()
@@ -177,13 +183,19 @@ private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     
     private void newProject()
     {
+        // make a new project
         currentProject = new JFlavourProjectBean();
+        // this top component listens for changes in the project's properties
         currentProject.addPropertyChangeListener(this);
         currentProject.setName("New Project");
-        associateLookup(Lookups.singleton(currentProject));
+        // put the project into the list of available projects and select it
+        projectsListModel.addElement(currentProject.getName());
+        projectList.setSelectedIndex(projectsListModel.getSize()- 1);
+        // let other modules see that this is the current project
+        lookupContent.add(currentProject);
+        // save the project to disk
         saveProject();
         tfProjectName.grabFocus();
-        projectsListModel.addElement(currentProject.getName());
     }
     
     private void saveProject()
@@ -195,7 +207,14 @@ private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     public void propertyChange(PropertyChangeEvent arg0)
     {
         if (arg0.getPropertyName().equals(JFlavourProjectBean.PROP_NAME)) {
-            tfProjectName.setText(currentProject.getName());
+            // the name has changed for the project listened to
+            int selectedIndex = projectList.getSelectedIndex();
+            if (selectedIndex >= 0) { // if there's a selected project
+                // set the text field to the projects new name
+                tfProjectName.setText(currentProject.getName());
+                // replace the old with the new in the project list
+                projectsListModel.set(selectedIndex, currentProject.getName());
+            }
         }
     }
 }
