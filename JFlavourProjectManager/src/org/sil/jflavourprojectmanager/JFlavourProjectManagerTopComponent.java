@@ -61,6 +61,7 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         btnProjectExport = new javax.swing.JButton();
         btnImport = new javax.swing.JButton();
         btnNew = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
 
         jSplitPane1.setDividerLocation(100);
 
@@ -87,17 +88,20 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(btnDelete, org.openide.util.NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "JFlavourProjectManagerTopComponent.btnDelete.text")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tfProjectName, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                    .addComponent(btnProjectExport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnImport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnNew, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tfProjectName, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                    .addComponent(btnProjectExport, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnImport, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnNew, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(202, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -111,7 +115,9 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
                 .addComponent(btnImport)
                 .addGap(18, 18, 18)
                 .addComponent(btnNew)
-                .addContainerGap(116, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btnDelete)
+                .addContainerGap(68, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel1);
@@ -137,6 +143,7 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
 }//GEN-LAST:event_tfProjectNameKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnImport;
     private javax.swing.JButton btnNew;
     private javax.swing.JButton btnProjectExport;

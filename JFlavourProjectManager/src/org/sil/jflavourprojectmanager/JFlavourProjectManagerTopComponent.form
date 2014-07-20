@@ -65,9 +65,10 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="btnDelete" alignment="0" max="32767" attributes="1"/>
                           <Component id="tfProjectName" alignment="0" pref="80" max="32767" attributes="1"/>
                           <Component id="btnProjectExport" alignment="0" max="32767" attributes="1"/>
                           <Component id="btnImport" alignment="0" max="32767" attributes="1"/>
@@ -88,7 +89,9 @@
                       <Component id="btnImport" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="btnNew" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="116" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="btnDelete" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="68" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -127,6 +130,13 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNewActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnDelete">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/sil/jflavourprojectmanager/Bundle.properties" key="JFlavourProjectManagerTopComponent.btnDelete.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
