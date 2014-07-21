@@ -6,6 +6,10 @@ package org.sil.jflavourprojectmanager;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -14,7 +18,6 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -38,11 +41,14 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         initComponents();
         setName(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "CTL_JFlavourProjectManagerTopComponent"));
         setToolTipText(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "HINT_JFlavourProjectManagerTopComponent"));
+        randGenerator = new Random();
         projectsListModel = new DefaultListModel<String>();
         projectList.setModel(projectsListModel);
         populateProjectList();
         lookupContent = new InstanceContent();
         associateLookup(new AbstractLookup(lookupContent));
+        projectIDs = new HashMap<int, String>();
+        loadProjects();
     }
 
     /** This method is called from within the constructor to
@@ -156,6 +162,8 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     private DefaultListModel<String> projectsListModel;
     private JFlavourProjectBean currentProject;
     private InstanceContent lookupContent;
+    private Map<int, String> projectIDs;
+    private Random randGenerator;
     
     @Override
     public void componentOpened()
@@ -200,7 +208,8 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
         projectList.setSelectedIndex(projectsListModel.getSize()- 1);
         // let other modules see that this is the current project
         lookupContent.add(currentProject);
-        // save the project to disk
+        // assign an ID to the project save it to disk
+        projectIDs.put(getNewProjectID(), currentProject.getName());
         saveProject();
         tfProjectName.grabFocus();
     }
@@ -208,6 +217,11 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     private void saveProject()
     {
         // TODO save current project (output to XML file?)
+    }
+    
+    private void loadProjects()
+    {
+        
     }
 
     @Override
@@ -223,5 +237,15 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
                 projectsListModel.set(selectedIndex, currentProject.getName());
             }
         }
+    }
+    
+    private int getNewProjectID()
+    {
+        int newID = randGenerator.nextInt(100);
+        Set existingIDs = projectIDs.keySet();
+        while (existingIDs.contains(newID)) {            
+            ++newID;
+        }
+        return newID;
     }
 }
