@@ -7,7 +7,10 @@ package org.sil.jflavourapi;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import org.jdom2.Element;
+import org.jdom2.filter.ElementFilter;
 
 /**
  *
@@ -23,6 +26,13 @@ public class JFlavourItemBean implements Serializable
     private List<String> imageFilePaths;
     private PropertyChangeSupport propertySupport;
     
+    private final String XML_ITEM = "jFlavourItem";
+    private final String XML_LABEL = "itemLabel";
+    private final String XML_CATEGORY = "itemCategory";
+    private final String XML_AUDIO = "itemAudio";
+    private final String XML_IMAGE = "itemImage";
+    private final String XML_PATH = "path";
+    
     public JFlavourItemBean()
     {
         label = "";
@@ -30,6 +40,25 @@ public class JFlavourItemBean implements Serializable
         audioFilePaths = new ArrayList<String>(5);
         imageFilePaths = new ArrayList<String>(5);
         propertySupport = new PropertyChangeSupport(this);
+    }
+    
+    public JFlavourItemBean(Element domElement)
+    {
+        super();
+        label = domElement.getChildText(XML_LABEL);
+        Element categories = domElement.getChild(XML_CATEGORY);
+        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+            this.categories.add(it.next().getText());          
+        }
+        Element audio = domElement.getChild(XML_AUDIO);
+        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+            this.audioFilePaths.add(it.next().getText());          
+        }
+        Element images = domElement.getChild(XML_IMAGE);
+        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+            this.imageFilePaths.add(it.next().getText());          
+        }
+        
     }
     
     public String getLabel()
@@ -134,5 +163,27 @@ public class JFlavourItemBean implements Serializable
     
     public void playAudio(int index)
     {
+    }
+    
+    public Element toDomElement()
+    {
+        Element itemElement = new Element(XML_ITEM);
+        itemElement.addContent(new Element(XML_LABEL).addContent(label));
+        Element categoryList = new Element(XML_CATEGORY);
+        for (Iterator<String> it = categories.iterator(); it.hasNext();) {
+            categoryList.addContent(new Element(XML_PATH).addContent(it.next()));
+        }
+        itemElement.addContent(categoryList);
+        Element audioList = new Element(XML_CATEGORY);
+        for (Iterator<String> it = audioFilePaths.iterator(); it.hasNext();) {
+            audioList.addContent(new Element(XML_PATH).addContent(it.next()));
+        }
+        itemElement.addContent(audioList);
+        Element imageList = new Element(XML_CATEGORY);
+        for (Iterator<String> it = imageFilePaths.iterator(); it.hasNext();) {
+            imageList.addContent(new Element(XML_PATH).addContent(it.next()));
+        }
+        itemElement.addContent(imageList);
+        return itemElement;
     }
 }

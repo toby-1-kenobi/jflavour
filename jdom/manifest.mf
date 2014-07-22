@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.sil.jdom2
+OpenIDE-Module-Localizing-Bundle: org/sil/jdom2/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

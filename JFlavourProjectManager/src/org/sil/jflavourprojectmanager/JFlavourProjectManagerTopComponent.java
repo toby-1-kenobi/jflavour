@@ -14,8 +14,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.swing.DefaultListModel;
@@ -59,6 +61,7 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         Files.createDirectories(dataDirectory);
         projectsListModel = new DefaultListModel<ProjectListEntry>();
         projectList.setModel(projectsListModel);
+        projectCache = new HashMap<Integer, JFlavourProjectBean>();
         lookupContent = new InstanceContent();
         associateLookup(new AbstractLookup(lookupContent));
         loadProjectIDs();
@@ -167,7 +170,20 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
 }//GEN-LAST:event_tfProjectNameKeyTyped
 
 private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_projectListValueChanged
-// TODO add your handling code here:
+    int selectedIndex = projectList.getSelectedIndex();
+    if (selectedIndex >= 0) { // if there's a selected project
+        ProjectListEntry entry =  projectsListModel.get(selectedIndex);
+        JFlavourProjectBean project;
+        try {
+            int id = entry.getKey().intValue();
+            project = loadProject(id);
+            setCurrentProject(project, id);
+            tfProjectName.grabFocus();
+        } catch (Exception x) {
+            System.err.format("Load project Exception: %s%n", x);
+            return;
+        }
+    }
 }//GEN-LAST:event_projectListValueChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -183,6 +199,8 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
     // End of variables declaration//GEN-END:variables
     private DefaultListModel<ProjectListEntry> projectsListModel;
     private JFlavourProjectBean currentProject;
+    private int currentProjectId;
+    private Map<Integer, JFlavourProjectBean> projectCache;
     private InstanceContent lookupContent;
     private Random randGenerator;
     private Path dataDirectory;
@@ -192,6 +210,8 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
     private final String XML_PROJECT = "jFlavourProject";
     private final String XML_PROJECT_NAME = "jFlavourProjectName";
     private final String XML_PROJECT_ID = "jFlavourProjectID";
+    
+    private final String PROJECT_FILE_EXT = "jfp";
     
     @Override
     public void componentOpened()
@@ -222,30 +242,54 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
     private void newProject()
     {
         // make a new project
-        currentProject = new JFlavourProjectBean();
-        // this top component listens for changes in the project's properties
-        currentProject.addPropertyChangeListener(this);
-        currentProject.setName("New Project");
+        JFlavourProjectBean project = new JFlavourProjectBean();
+        project.setName("New Project");
+        int projectID = getNewProjectID();
         // put the project into the list of available projects and select it
-        projectsListModel.addElement(new ProjectListEntry(getNewProjectID(), currentProject.getName()));
+        projectsListModel.addElement(new ProjectListEntry(projectID, project.getName()));
         projectList.setSelectedIndex(projectsListModel.getSize()- 1);
-        // let other modules see that this is the current project
-        lookupContent.add(currentProject);
-        //projectIDs.put(getNewProjectID(), currentProject.getName());
-        // save it to disk
-        saveProject();
+        // also save the new list of projects
+        saveProjectIDs();
+        // put the project in the cache so we wont need to load it from file again
+        projectCache.put(projectID, project);
+        setCurrentProject(project, projectID);
         tfProjectName.grabFocus();
+        // save it to disk
+        saveProject(currentProject, projectID);
     }
     
-    private void saveProject()
+    private void saveProject(JFlavourProjectBean project, int projectID)
     {
-        // TODO save current project (output to XML file?)
+        Document projectDoc = new Document(currentProject.toDomElement());
+        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
+        Path projectPath = dataDirectory.resolve(Integer.toString(projectID) + '.' + PROJECT_FILE_EXT);
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
+            xout.output(projectDoc, writer);
+        } catch (IOException x) {
+            System.err.format(" Save project IOException: %s%n", x);
+        }
     }
     
-//    private JFlavourProjectBean loadProject(int id)
-//    {
-//        
-//    }
+    private JFlavourProjectBean loadProject(int id) throws JDOMException, IOException
+    {
+        if (projectCache.containsKey(id)) {
+            return projectCache.get(id);
+        } else {
+            Path projectPath = dataDirectory.resolve(Integer.toString(id) + '.' + PROJECT_FILE_EXT);
+            if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath)) {
+                SAXBuilder builder = new SAXBuilder();
+                Document projectDoc = builder.build(projectPath.toFile());
+                Element root = projectDoc.getContent(new ElementFilter()).get(0);
+                JFlavourProjectBean project = new JFlavourProjectBean(root);
+                projectCache.put(id, project);
+                return project;
+            }
+            else {
+                throw new IOException("could not read JFlavour project at " + projectPath);
+            }
+        }
+    }
     
     private void saveProjectIDs()
     {
@@ -264,7 +308,7 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             BufferedWriter writer = Files.newBufferedWriter(projectIdPath, Charset.forName("UTF-8"));
             xout.output(projectIdDoc, writer);
         } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
+            System.err.format("Save project IDs IOException: %s%n", x);
         }
     }
     
@@ -278,14 +322,16 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
                 Element root = projects.getContent(new ElementFilter()).get(0);
                 for (Iterator<Element> it = root.getDescendants(new ElementFilter()); it.hasNext();) {
                     Element projectNode = it.next();
-                    projectsListModel.addElement( new ProjectListEntry(Integer.valueOf(projectNode.getChildText(XML_PROJECT_ID)), projectNode.getChildText(XML_PROJECT_NAME)));
+                    int id = Integer.valueOf(projectNode.getChild(XML_PROJECT_ID).getText());
+                    String name = projectNode.getChild(XML_PROJECT_NAME).getText();
+                    projectsListModel.addElement(new ProjectListEntry(id, name));
                 }
             } catch(JDOMException x) {
-                System.err.format("JDOMException: %s%n", x);
+                System.err.format("Load project IDs JDOMException: %s%n", x);
             } catch(NullPointerException x) {
-                System.err.format("NullPointerException: %s%n", x);
+                System.err.format("Load project IDs NullPointerException: %s%n", x);
             } catch(IOException x) {
-                System.err.format("IOException: %s%n", x);
+                System.err.format("Load project IDs IOException: %s%n", x);
             }
         }
     }
@@ -302,7 +348,9 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
                 // replace the old with the new in the project list
                 projectsListModel.get(selectedIndex).setValue(currentProject.getName());
             }
+            saveProjectIDs();
         }
+        saveProject(currentProject, currentProjectId);
     }
     
     private int getNewProjectID()
@@ -335,6 +383,23 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             directory = Paths.get(System.getProperty("user.home"), "/.JFlavour");
         }
         return directory;
+    }
+    
+    private void setCurrentProject(JFlavourProjectBean project, int projectID)
+    {
+        // remove the current project from the lookup
+        if (currentProject != null) {
+            lookupContent.remove(currentProject);
+            currentProject.removePropertyChangeListener(this);
+        }
+        // this top component listens for changes in the project's properties
+        project.addPropertyChangeListener(this);
+        // let other modules see that this is the current project
+        lookupContent.add(project);
+        currentProject = project;
+        currentProjectId = projectID;
+        // set the text field to the projects new name
+        tfProjectName.setText(currentProject.getName());
     }
     
     private class ProjectListEntry extends AbstractMap.SimpleEntry<Integer, String>
