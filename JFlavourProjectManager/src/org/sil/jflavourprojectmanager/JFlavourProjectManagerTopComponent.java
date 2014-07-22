@@ -6,7 +6,14 @@ package org.sil.jflavourprojectmanager;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -19,6 +26,11 @@ import org.openide.awt.ActionReference;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.sil.jflavourapi.JFlavourProjectBean;
+import org.jdom2.*;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 /**
  * Top component which displays something.
@@ -36,19 +48,20 @@ preferredID = "JFlavourProjectManagerTopComponent")
 public final class JFlavourProjectManagerTopComponent extends TopComponent implements PropertyChangeListener
 {
 
-    public JFlavourProjectManagerTopComponent()
+    public JFlavourProjectManagerTopComponent() throws IOException
     {
         initComponents();
         setName(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "CTL_JFlavourProjectManagerTopComponent"));
         setToolTipText(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "HINT_JFlavourProjectManagerTopComponent"));
         randGenerator = new Random();
+        dataDirectory = getDataDirectory();
+        Files.createDirectories(dataDirectory);
         projectsListModel = new DefaultListModel<String>();
         projectList.setModel(projectsListModel);
-        populateProjectList();
         lookupContent = new InstanceContent();
         associateLookup(new AbstractLookup(lookupContent));
-        projectIDs = new HashMap<int, String>();
-        loadProjects();
+        projectIDs = new HashMap<Integer, String>();
+        loadProjectIDs();
     }
 
     /** This method is called from within the constructor to
@@ -162,8 +175,15 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     private DefaultListModel<String> projectsListModel;
     private JFlavourProjectBean currentProject;
     private InstanceContent lookupContent;
-    private Map<int, String> projectIDs;
+    private Map<Integer, String> projectIDs;
     private Random randGenerator;
+    private Path dataDirectory;
+    private final String PROJECT_ID_FILENAME = "projects.xml";
+    
+    private final String XML_PROJECT_LIST = "jFlavourProjectList";
+    private final String XML_PROJECT = "jFlavourProject";
+    private final String XML_PROJECT_NAME = "jFlavourProjectName";
+    private final String XML_PROJECT_ID = "jFlavourProjectID";
     
     @Override
     public void componentOpened()
@@ -191,11 +211,6 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
         // TODO read your settings according to their version
     }
     
-    private void populateProjectList()
-    {
-        // TODO populate the project list with persisting projects
-    }
-    
     private void newProject()
     {
         // make a new project
@@ -219,9 +234,53 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
         // TODO save current project (output to XML file?)
     }
     
-    private void loadProjects()
+//    private JFlavourProjectBean loadProject(int id)
+//    {
+//        
+//    }
+    
+    private void saveProjectIDs()
     {
-        
+        Element root = new Element(XML_PROJECT_LIST);
+        Document projectIdDoc = new Document(root);
+        for (Map.Entry<Integer, String> proj : projectIDs.entrySet()) {
+            Element projectElem = new Element(XML_PROJECT);
+            projectElem.addContent(new Element(XML_PROJECT_ID).addContent(proj.getKey().toString()));
+            projectElem.addContent(new Element(XML_PROJECT_NAME).addContent(proj.getValue()));
+            root.addContent(projectElem);
+        }
+        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
+        Path projectIdPath = dataDirectory.resolve(PROJECT_ID_FILENAME);
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(projectIdPath, Charset.forName("UTF-8"));
+            xout.output(projectIdDoc, writer);
+        } catch (IOException x) {
+            System.err.format("IOException: %s%n", x);
+        } finally {
+            writer.close();
+        }
+    }
+    
+    private void loadProjectIDs()
+    {
+        Path projectIdPath = dataDirectory.resolve(PROJECT_ID_FILENAME);
+        if(Files.isRegularFile(projectIdPath) && Files.isReadable(projectIdPath)) {
+            try {
+                SAXBuilder builder = new SAXBuilder();
+                Document projects = builder.build(projectIdPath.toFile());
+                Element root = projects.getContent(new ElementFilter()).get(0);
+                for (Iterator<Element> it = root.getDescendants(new ElementFilter()); it.hasNext();) {
+                    Element projectNode = it.next();
+                    projectIDs.put(Integer.valueOf(projectNode.getChildText(XML_PROJECT_ID)), projectNode.getChildText(XML_PROJECT_NAME));
+                }
+            } catch(JDOMException x) {
+                System.err.format("JDOMException: %s%n", x);
+            } catch(NullPointerException x) {
+                System.err.format("NullPointerException: %s%n", x);
+            } catch(IOException x) {
+                System.err.format("IOException: %s%n", x);
+            }
+        }
     }
 
     @Override
@@ -247,5 +306,24 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
             ++newID;
         }
         return newID;
+    }
+    
+    private Path getDataDirectory()
+    {
+        Path directory;
+        String os = (System.getProperty("os.name")).toUpperCase();
+        if (os.contains("WIN")) {
+            directory = Paths.get(System.getenv("AppData"), "JFlavour");
+        }
+        else if (os.contains("LINUX")) {
+            directory = Paths.get(System.getProperty("user.home"), ".local", "share", "JFlavour");
+        }
+        else if (os.contains("MAC")) {
+            directory = Paths.get(System.getProperty("user.home"), "Library", "Application Support", "JFlavour");
+        }
+        else {
+            directory = Paths.get(System.getProperty("user.home"), "/.JFlavour");
+        }
+        return directory;
     }
 }
