@@ -12,9 +12,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.AbstractMap;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.swing.DefaultListModel;
@@ -56,11 +57,10 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         randGenerator = new Random();
         dataDirectory = getDataDirectory();
         Files.createDirectories(dataDirectory);
-        projectsListModel = new DefaultListModel<String>();
+        projectsListModel = new DefaultListModel<ProjectListEntry>();
         projectList.setModel(projectsListModel);
         lookupContent = new InstanceContent();
         associateLookup(new AbstractLookup(lookupContent));
-        projectIDs = new HashMap<Integer, String>();
         loadProjectIDs();
     }
 
@@ -85,6 +85,11 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         jSplitPane1.setDividerLocation(100);
 
         projectList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        projectList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                projectListValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(projectList);
 
         jSplitPane1.setLeftComponent(jScrollPane1);
@@ -161,6 +166,10 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     currentProject.setName(tfProjectName.getText());
 }//GEN-LAST:event_tfProjectNameKeyTyped
 
+private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_projectListValueChanged
+// TODO add your handling code here:
+}//GEN-LAST:event_projectListValueChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnImport;
@@ -172,10 +181,9 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     private javax.swing.JList projectList;
     private javax.swing.JTextField tfProjectName;
     // End of variables declaration//GEN-END:variables
-    private DefaultListModel<String> projectsListModel;
+    private DefaultListModel<ProjectListEntry> projectsListModel;
     private JFlavourProjectBean currentProject;
     private InstanceContent lookupContent;
-    private Map<Integer, String> projectIDs;
     private Random randGenerator;
     private Path dataDirectory;
     private final String PROJECT_ID_FILENAME = "projects.xml";
@@ -219,12 +227,12 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
         currentProject.addPropertyChangeListener(this);
         currentProject.setName("New Project");
         // put the project into the list of available projects and select it
-        projectsListModel.addElement(currentProject.getName());
+        projectsListModel.addElement(new ProjectListEntry(getNewProjectID(), currentProject.getName()));
         projectList.setSelectedIndex(projectsListModel.getSize()- 1);
         // let other modules see that this is the current project
         lookupContent.add(currentProject);
-        // assign an ID to the project save it to disk
-        projectIDs.put(getNewProjectID(), currentProject.getName());
+        //projectIDs.put(getNewProjectID(), currentProject.getName());
+        // save it to disk
         saveProject();
         tfProjectName.grabFocus();
     }
@@ -243,7 +251,8 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     {
         Element root = new Element(XML_PROJECT_LIST);
         Document projectIdDoc = new Document(root);
-        for (Map.Entry<Integer, String> proj : projectIDs.entrySet()) {
+        for (Enumeration<ProjectListEntry> projectEnum = projectsListModel.elements(); projectEnum.hasMoreElements();) {
+            ProjectListEntry proj = projectEnum.nextElement();
             Element projectElem = new Element(XML_PROJECT);
             projectElem.addContent(new Element(XML_PROJECT_ID).addContent(proj.getKey().toString()));
             projectElem.addContent(new Element(XML_PROJECT_NAME).addContent(proj.getValue()));
@@ -256,8 +265,6 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
             xout.output(projectIdDoc, writer);
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
-        } finally {
-            writer.close();
         }
     }
     
@@ -271,7 +278,7 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
                 Element root = projects.getContent(new ElementFilter()).get(0);
                 for (Iterator<Element> it = root.getDescendants(new ElementFilter()); it.hasNext();) {
                     Element projectNode = it.next();
-                    projectIDs.put(Integer.valueOf(projectNode.getChildText(XML_PROJECT_ID)), projectNode.getChildText(XML_PROJECT_NAME));
+                    projectsListModel.addElement( new ProjectListEntry(Integer.valueOf(projectNode.getChildText(XML_PROJECT_ID)), projectNode.getChildText(XML_PROJECT_NAME)));
                 }
             } catch(JDOMException x) {
                 System.err.format("JDOMException: %s%n", x);
@@ -293,7 +300,7 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
                 // set the text field to the projects new name
                 tfProjectName.setText(currentProject.getName());
                 // replace the old with the new in the project list
-                projectsListModel.set(selectedIndex, currentProject.getName());
+                projectsListModel.get(selectedIndex).setValue(currentProject.getName());
             }
         }
     }
@@ -301,8 +308,11 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
     private int getNewProjectID()
     {
         int newID = randGenerator.nextInt(100);
-        Set existingIDs = projectIDs.keySet();
-        while (existingIDs.contains(newID)) {            
+        Set<Integer> existingIDs = new HashSet<Integer>();
+        for (Enumeration<ProjectListEntry> projectEnum = projectsListModel.elements(); projectEnum.hasMoreElements();) {
+            existingIDs.add(projectEnum.nextElement().getKey());
+        }
+        while (existingIDs.contains(new Integer(newID))) {            
             ++newID;
         }
         return newID;
@@ -325,5 +335,20 @@ private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:eve
             directory = Paths.get(System.getProperty("user.home"), "/.JFlavour");
         }
         return directory;
+    }
+    
+    private class ProjectListEntry extends AbstractMap.SimpleEntry<Integer, String>
+    {
+        
+        public ProjectListEntry(Integer key, String value)
+        {
+            super(key, value);
+        }
+        
+        @Override
+        public String toString()
+        {
+            return this.getValue();
+        }
     }
 }
