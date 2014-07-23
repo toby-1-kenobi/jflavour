@@ -56,7 +56,8 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
     {
         initComponents();
         setName(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "CTL_JFlavourProjectManagerTopComponent"));
-        setToolTipText(NbBundle.getMessage(JFlavourProjectManagerTopComponent.class, "HINT_JFlavourProjectManagerTopComponent"));
+        setDisplayName("Project Manager");
+        setToolTipText("Manage all your JFlavour projects here");
         randGenerator = new Random();
         dataDirectory = getDataDirectory();
         Files.createDirectories(dataDirectory);
