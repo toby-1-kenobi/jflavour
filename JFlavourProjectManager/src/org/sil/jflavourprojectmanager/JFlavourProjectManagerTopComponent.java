@@ -17,6 +17,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -320,9 +321,10 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
                 SAXBuilder builder = new SAXBuilder();
                 Document projects = builder.build(projectIdPath.toFile());
                 Element root = projects.getContent(new ElementFilter()).get(0);
-                for (Iterator<Element> it = root.getDescendants(new ElementFilter()); it.hasNext();) {
+                List<Element> allProjects = root.getChildren(XML_PROJECT);
+                for (Iterator<Element> it = allProjects.iterator(); it.hasNext();) {
                     Element projectNode = it.next();
-                    int id = Integer.valueOf(projectNode.getChild(XML_PROJECT_ID).getText());
+                    int id = Integer.parseInt(projectNode.getChild(XML_PROJECT_ID).getText());
                     String name = projectNode.getChild(XML_PROJECT_NAME).getText();
                     projectsListModel.addElement(new ProjectListEntry(id, name));
                 }
