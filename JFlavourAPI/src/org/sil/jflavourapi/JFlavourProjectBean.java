@@ -42,7 +42,7 @@ public class JFlavourProjectBean implements Serializable
     
     public JFlavourProjectBean(Element domElement)
     {
-        super();
+        this();
         name = domElement.getChildText(XML_PROJECT_NAME);
         Element allItems = domElement.getChild(XML_ITEMS);
         for (Iterator<Element> it = allItems.getDescendants(new ElementFilter()); it.hasNext();) {

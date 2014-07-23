@@ -181,7 +181,8 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             setCurrentProject(project, id);
             tfProjectName.grabFocus();
         } catch (Exception x) {
-            System.err.format("Load project Exception: %s%n", x);
+            StackTraceElement[] stackTrace = x.getStackTrace();
+            System.err.format("Load project Exception: %s %s:%d%n", x, stackTrace[0].getFileName(), stackTrace[0].getLineNumber());
             return;
         }
     }

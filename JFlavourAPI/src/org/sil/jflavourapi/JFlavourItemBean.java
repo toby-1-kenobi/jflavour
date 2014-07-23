@@ -44,7 +44,7 @@ public class JFlavourItemBean implements Serializable
     
     public JFlavourItemBean(Element domElement)
     {
-        super();
+        this();
         label = domElement.getChildText(XML_LABEL);
         Element categories = domElement.getChild(XML_CATEGORY);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
