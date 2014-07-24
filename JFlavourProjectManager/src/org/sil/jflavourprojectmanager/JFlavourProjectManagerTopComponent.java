@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -39,6 +38,7 @@ import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.sil.jflavourapi.JFlavourPathManager;
 
 /**
  * Top component which displays something.
@@ -63,7 +63,7 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         setDisplayName("Project Manager");
         setToolTipText("Manage all your JFlavour projects here");
         randGenerator = new Random();
-        dataDirectory = getDataDirectory();
+        dataDirectory = JFlavourPathManager.getDataDirectory();
         Files.createDirectories(dataDirectory);
         projectsListModel = new DefaultListModel<ProjectListEntry>();
         projectList.setModel(projectsListModel);
@@ -389,25 +389,6 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             ++newID;
         }
         return newID;
-    }
-    
-    private Path getDataDirectory()
-    {
-        Path directory;
-        String os = (System.getProperty("os.name")).toUpperCase();
-        if (os.contains("WIN")) {
-            directory = Paths.get(System.getenv("AppData"), "JFlavour");
-        }
-        else if (os.contains("LINUX")) {
-            directory = Paths.get(System.getProperty("user.home"), ".local", "share", "JFlavour");
-        }
-        else if (os.contains("MAC")) {
-            directory = Paths.get(System.getProperty("user.home"), "Library", "Application Support", "JFlavour");
-        }
-        else {
-            directory = Paths.get(System.getProperty("user.home"), "/.JFlavour");
-        }
-        return directory;
     }
     
     private void setActiveProject(JFlavourProjectBean project, int projectID)
