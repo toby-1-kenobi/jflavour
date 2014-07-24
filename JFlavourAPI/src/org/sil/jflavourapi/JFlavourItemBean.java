@@ -22,10 +22,12 @@ public class JFlavourItemBean implements Serializable
 {
     
     public static final String PROP_LABEL = "label";
+    public static final String PROP_DIRTY = "dirty";
     private String label;
     private List<String> categories;
     private List<Path> audioFilePaths;
     private List<Path> imageFilePaths;
+    private boolean dirty;
     private PropertyChangeSupport propertySupport;
     
     private final String XML_ITEM = "jFlavourItem";
@@ -41,6 +43,7 @@ public class JFlavourItemBean implements Serializable
         categories = new ArrayList<String>(5);
         audioFilePaths = new ArrayList<Path>(5);
         imageFilePaths = new ArrayList<Path>(5);
+        dirty = false;
         propertySupport = new PropertyChangeSupport(this);
     }
     
@@ -72,6 +75,7 @@ public class JFlavourItemBean implements Serializable
     {
         String oldValue = label;
         label = value;
+        setDirty(true);
         propertySupport.firePropertyChange(PROP_LABEL, oldValue, label);
     }
     
@@ -104,21 +108,25 @@ public class JFlavourItemBean implements Serializable
     public void setCategories(List<String> categories)
     {
         this.categories = categories;
+        setDirty(true);
     }
     
     public void setCategories(int index, String category)
     {
         this.categories.set(index, category);
+        setDirty(true);
     }
     
     public void addCategory(String category)
     {
         this.categories.add(category);
+        setDirty(true);
     }
     
     public void removeCategory(int index)
     {
         this.categories.remove(index);
+        setDirty(true);
     }
 
     /**
@@ -140,11 +148,13 @@ public class JFlavourItemBean implements Serializable
     public void setAudioFilePaths(List<Path> audioFilePaths)
     {
         this.audioFilePaths = audioFilePaths;
+        setDirty(true);
     }
     
     public void setAudioFilePaths(int index, Path path)
     {
         audioFilePaths.set(index, path);
+        setDirty(true);
     }
 
     /**
@@ -166,11 +176,37 @@ public class JFlavourItemBean implements Serializable
     public void setImageFilePaths(List<Path> imageFilePaths)
     {
         this.imageFilePaths = imageFilePaths;
+        setDirty(true);
     }
     
     public void setImageFilePaths(int index, Path path)
     {
         imageFilePaths.set(index, path);
+        setDirty(true);
+    }
+
+    /**
+     * @return the dirty
+     */
+    public boolean getDirty()
+    {
+        return dirty;
+    }
+
+    /**
+     * @param dirty the dirty to set
+     */
+    public void setDirty(boolean dirty)
+    {
+        if (this.dirty != dirty) {
+            this.dirty = dirty;
+            propertySupport.firePropertyChange(PROP_DIRTY, new Boolean(!dirty), new Boolean(dirty));
+        }
+    }
+    
+    public boolean isDirty()
+    {
+        return dirty;
     }
     
     public void playAudio(int index)

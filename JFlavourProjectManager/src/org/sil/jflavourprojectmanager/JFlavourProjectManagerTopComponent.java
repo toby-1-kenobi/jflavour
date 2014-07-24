@@ -290,6 +290,7 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
         try {
             BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
             xout.output(projectDoc, writer);
+            project.setDirty(false);
         } catch (IOException x) {
             System.err.format(" Save project IOException: %s%n", x);
         }
@@ -362,9 +363,9 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent arg0)
+    public void propertyChange(PropertyChangeEvent pce)
     {
-        if (arg0.getPropertyName().equals(JFlavourProjectBean.PROP_NAME)) {
+        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_NAME)) {
             // the name has changed for the project listened to
             int selectedIndex = projectList.getSelectedIndex();
             if (selectedIndex >= 0) { // if there's a selected project
@@ -375,7 +376,9 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             }
             saveProjectIDs();
         }
-        saveProject(activeProject, activeProjectID);
+        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_DIRTY) && ((Boolean)pce.getNewValue()).booleanValue()) {
+            saveProject(activeProject, activeProjectID);
+        }
     }
     
     private int getNewProjectID()
