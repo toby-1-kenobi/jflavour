@@ -108,6 +108,16 @@ public class JFlavourItemBean implements Serializable
     {
         audioFilePaths.set(index, category);
     }
+    
+    public void addCategory(String category)
+    {
+        this.categories.add(category);
+    }
+    
+    public void removeCategory(int index)
+    {
+        this.categories.remove(index);
+    }
 
     /**
      * @return the audioFilePaths
