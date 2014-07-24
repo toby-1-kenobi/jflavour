@@ -4,6 +4,8 @@
  */
 package org.sil.jflavourprojectmanager;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
@@ -22,6 +24,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.ListModel;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -63,6 +67,23 @@ public final class JFlavourProjectManagerTopComponent extends TopComponent imple
         Files.createDirectories(dataDirectory);
         projectsListModel = new DefaultListModel<ProjectListEntry>();
         projectList.setModel(projectsListModel);
+        // let each element in the list have it's own tooltip
+        projectList.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            @Override
+            public void mouseMoved(MouseEvent e)
+            {
+                JList list = (JList)e.getSource();
+                ListModel<ProjectListEntry> model = list.getModel();
+                int index = list.locationToIndex(e.getPoint());
+                if(index > -1) {
+                    list.setToolTipText(model.getElementAt(index).getTooltip());
+                }
+                else {
+                    list.setToolTipText("Select a project to work on");
+                }
+            }
+        });
         projectCache = new HashMap<Integer, JFlavourProjectBean>();
         lookupContent = new InstanceContent();
         associateLookup(new AbstractLookup(lookupContent));
@@ -418,6 +439,11 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
         public String toString()
         {
             return this.getValue();
+        }
+        
+        public String getTooltip()
+        {
+            return this.getValue() + " (id: " + this.getKey() + ")";
         }
     }
 }
