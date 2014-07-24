@@ -6,6 +6,8 @@ package org.sil.jflavourapi;
 
 import java.beans.*;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,8 +24,8 @@ public class JFlavourItemBean implements Serializable
     public static final String PROP_LABEL = "label";
     private String label;
     private List<String> categories;
-    private List<String> audioFilePaths;
-    private List<String> imageFilePaths;
+    private List<Path> audioFilePaths;
+    private List<Path> imageFilePaths;
     private PropertyChangeSupport propertySupport;
     
     private final String XML_ITEM = "jFlavourItem";
@@ -37,8 +39,8 @@ public class JFlavourItemBean implements Serializable
     {
         label = "";
         categories = new ArrayList<String>(5);
-        audioFilePaths = new ArrayList<String>(5);
-        imageFilePaths = new ArrayList<String>(5);
+        audioFilePaths = new ArrayList<Path>(5);
+        imageFilePaths = new ArrayList<Path>(5);
         propertySupport = new PropertyChangeSupport(this);
     }
     
@@ -52,11 +54,11 @@ public class JFlavourItemBean implements Serializable
         }
         Element audio = domElement.getChild(XML_AUDIO);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.audioFilePaths.add(it.next().getText());          
+            this.audioFilePaths.add(Paths.get(it.next().getText()));          
         }
         Element images = domElement.getChild(XML_IMAGE);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.imageFilePaths.add(it.next().getText());          
+            this.imageFilePaths.add(Paths.get(it.next().getText()));          
         }
         
     }
@@ -106,7 +108,7 @@ public class JFlavourItemBean implements Serializable
     
     public void setCategories(int index, String category)
     {
-        audioFilePaths.set(index, category);
+        this.categories.set(index, category);
     }
     
     public void addCategory(String category)
@@ -122,12 +124,12 @@ public class JFlavourItemBean implements Serializable
     /**
      * @return the audioFilePaths
      */
-    public List<String> getAudioFilePaths()
+    public List<Path> getAudioFilePaths()
     {
         return audioFilePaths;
     }
     
-    public String getAudioFilePaths(int index)
+    public Path getAudioFilePaths(int index)
     {
         return audioFilePaths.get(index);
     }
@@ -135,12 +137,12 @@ public class JFlavourItemBean implements Serializable
     /**
      * @param audioFilePaths the audioFilePaths to set
      */
-    public void setAudioFilePaths(List<String> audioFilePaths)
+    public void setAudioFilePaths(List<Path> audioFilePaths)
     {
         this.audioFilePaths = audioFilePaths;
     }
     
-    public void setAudioFilePaths(int index, String path)
+    public void setAudioFilePaths(int index, Path path)
     {
         audioFilePaths.set(index, path);
     }
@@ -148,12 +150,12 @@ public class JFlavourItemBean implements Serializable
     /**
      * @return the imageFilePaths
      */
-    public List<String> getImageFilePaths()
+    public List<Path> getImageFilePaths()
     {
         return imageFilePaths;
     }
     
-    public String getImageFilePaths(int index)
+    public Path getImageFilePaths(int index)
     {
         return imageFilePaths.get(index);
     }
@@ -161,12 +163,12 @@ public class JFlavourItemBean implements Serializable
     /**
      * @param imageFilePaths the imageFilePaths to set
      */
-    public void setImageFilePaths(List<String> imageFilePaths)
+    public void setImageFilePaths(List<Path> imageFilePaths)
     {
         this.imageFilePaths = imageFilePaths;
     }
     
-    public void setImageFilePaths(int index, String path)
+    public void setImageFilePaths(int index, Path path)
     {
         imageFilePaths.set(index, path);
     }
@@ -185,13 +187,13 @@ public class JFlavourItemBean implements Serializable
         }
         itemElement.addContent(categoryList);
         Element audioList = new Element(XML_CATEGORY);
-        for (Iterator<String> it = audioFilePaths.iterator(); it.hasNext();) {
-            audioList.addContent(new Element(XML_PATH).addContent(it.next()));
+        for (Iterator<Path> it = audioFilePaths.iterator(); it.hasNext();) {
+            audioList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(audioList);
         Element imageList = new Element(XML_CATEGORY);
-        for (Iterator<String> it = imageFilePaths.iterator(); it.hasNext();) {
-            imageList.addContent(new Element(XML_PATH).addContent(it.next()));
+        for (Iterator<Path> it = imageFilePaths.iterator(); it.hasNext();) {
+            imageList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(imageList);
         return itemElement;
