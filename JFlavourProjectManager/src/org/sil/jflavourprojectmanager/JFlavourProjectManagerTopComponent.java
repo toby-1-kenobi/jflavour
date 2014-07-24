@@ -189,7 +189,7 @@ private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
 }//GEN-LAST:event_btnNewActionPerformed
 
 private void tfProjectNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfProjectNameKeyTyped
-    currentProject.setName(tfProjectName.getText());
+    activeProject.setName(tfProjectName.getText());
 }//GEN-LAST:event_tfProjectNameKeyTyped
 
 private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_projectListValueChanged
@@ -200,7 +200,7 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
         try {
             int id = entry.getKey().intValue();
             project = loadProject(id);
-            setCurrentProject(project, id);
+            setActiveProject(project, id);
             tfProjectName.grabFocus();
         } catch (Exception x) {
             StackTraceElement[] stackTrace = x.getStackTrace();
@@ -222,8 +222,8 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
     private javax.swing.JTextField tfProjectName;
     // End of variables declaration//GEN-END:variables
     private DefaultListModel<ProjectListEntry> projectsListModel;
-    private JFlavourProjectBean currentProject;
-    private int currentProjectId;
+    private JFlavourProjectBean activeProject;
+    private int activeProjectID;
     private Map<Integer, JFlavourProjectBean> projectCache;
     private InstanceContent lookupContent;
     private Random randGenerator;
@@ -276,15 +276,15 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
         saveProjectIDs();
         // put the project in the cache so we wont need to load it from file again
         projectCache.put(projectID, project);
-        setCurrentProject(project, projectID);
+        setActiveProject(project, projectID);
         tfProjectName.grabFocus();
         // save it to disk
-        saveProject(currentProject, projectID);
+        saveProject(activeProject, projectID);
     }
     
     private void saveProject(JFlavourProjectBean project, int projectID)
     {
-        Document projectDoc = new Document(currentProject.toDomElement());
+        Document projectDoc = new Document(activeProject.toDomElement());
         XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
         Path projectPath = dataDirectory.resolve(Integer.toString(projectID) + '.' + PROJECT_FILE_EXT);
         try {
@@ -369,13 +369,13 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
             int selectedIndex = projectList.getSelectedIndex();
             if (selectedIndex >= 0) { // if there's a selected project
                 // set the text field to the projects new name
-                tfProjectName.setText(currentProject.getName());
+                tfProjectName.setText(activeProject.getName());
                 // replace the old with the new in the project list
-                projectsListModel.get(selectedIndex).setValue(currentProject.getName());
+                projectsListModel.get(selectedIndex).setValue(activeProject.getName());
             }
             saveProjectIDs();
         }
-        saveProject(currentProject, currentProjectId);
+        saveProject(activeProject, activeProjectID);
     }
     
     private int getNewProjectID()
@@ -410,21 +410,21 @@ private void projectListValueChanged(javax.swing.event.ListSelectionEvent evt) {
         return directory;
     }
     
-    private void setCurrentProject(JFlavourProjectBean project, int projectID)
+    private void setActiveProject(JFlavourProjectBean project, int projectID)
     {
         // remove the current project from the lookup
-        if (currentProject != null) {
-            lookupContent.remove(currentProject);
-            currentProject.removePropertyChangeListener(this);
+        if (activeProject != null) {
+            lookupContent.remove(activeProject);
+            activeProject.removePropertyChangeListener(this);
         }
         // this top component listens for changes in the project's properties
         project.addPropertyChangeListener(this);
         // let other modules see that this is the current project
         lookupContent.add(project);
-        currentProject = project;
-        currentProjectId = projectID;
+        activeProject = project;
+        activeProjectID = projectID;
         // set the text field to the projects new name
-        tfProjectName.setText(currentProject.getName());
+        tfProjectName.setText(activeProject.getName());
     }
     
     private class ProjectListEntry extends AbstractMap.SimpleEntry<Integer, String>
