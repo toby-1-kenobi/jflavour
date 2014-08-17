@@ -17,6 +17,9 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -43,6 +46,9 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         setToolTipText("Here are the items in the active project");
         categoriesListModel = new DefaultListModel<String>();
         categoryList.setModel(categoriesListModel);
+        lookupContent = new InstanceContent();
+        lookup = new AbstractLookup(lookupContent);
+        associateLookup(lookup);
     }
 
     /** This method is called from within the constructor to
@@ -57,6 +63,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         jScrollPane1 = new javax.swing.JScrollPane();
         categoryList = new javax.swing.JList();
         tmpLabel = new javax.swing.JLabel();
+        panelControls = new javax.swing.JPanel();
+        btnAddItem = new javax.swing.JButton();
 
         jSplitPane1.setDividerLocation(100);
 
@@ -67,26 +75,91 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         org.openide.awt.Mnemonics.setLocalizedText(tmpLabel, org.openide.util.NbBundle.getMessage(JFlavourViewerTopComponent.class, "JFlavourViewerTopComponent.tmpLabel.text")); // NOI18N
         jSplitPane1.setRightComponent(tmpLabel);
 
+        org.openide.awt.Mnemonics.setLocalizedText(btnAddItem, org.openide.util.NbBundle.getMessage(JFlavourViewerTopComponent.class, "JFlavourViewerTopComponent.btnAddItem.text")); // NOI18N
+        btnAddItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddItemActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelControlsLayout = new javax.swing.GroupLayout(panelControls);
+        panelControls.setLayout(panelControlsLayout);
+        panelControlsLayout.setHorizontalGroup(
+            panelControlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelControlsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnAddItem)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        panelControlsLayout.setVerticalGroup(
+            panelControlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelControlsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnAddItem)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(panelControls, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelControls, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    // TODO: make sure this button is disbaled when no project is active.
+    // TODO: the content of this method should be provided by the ItemEditor module?
+    private void btnAddItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddItemActionPerformed
+        // Create a new item for the current project
+        JFlavourItemBean newItem = new JFlavourItemBean();
+        // TODO: error handling for when no project is active
+        this.activeProject.addItem(newItem);
+        // TODO: once iconview is implemented, make this item the only selected one,
+        // which in turn should put it in the lookup
+        // meanwhile we'll just add it to the lookup manually, removing all other items.
+        for (JFlavourItemBean item : lookup.lookupAll(JFlavourItemBean.class))
+        {
+            lookupContent.remove(item);
+        }
+        lookupContent.add(newItem);
+        // finally call the action for opening the editor
+        
+    }//GEN-LAST:event_btnAddItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddItem;
     private javax.swing.JList categoryList;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JPanel panelControls;
     private javax.swing.JLabel tmpLabel;
     // End of variables declaration//GEN-END:variables
     private Lookup.Result<JFlavourProjectBean> result = null;
     private DefaultListModel<String> categoriesListModel;
+    private JFlavourProjectBean activeProject = null;
+    private InstanceContent lookupContent;
+    private AbstractLookup lookup;
+    
+    /*
+    private JFlavourProjectBean getActiveProject()
+    {
+        if (this.activeProject == null){
+            Collection<? extends JFlavourProjectBean> allProjects = result.allInstances();
+            if (!allProjects.isEmpty()) {
+                JFlavourProjectBean project = allProjects.iterator().next();
+                this.activeProject = project;
+            }
+        }
+        return activeProject;
+    }*/
     
     @Override
     public void componentOpened()
@@ -121,6 +194,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         Collection<? extends JFlavourProjectBean> allProjects = result.allInstances();
         if (!allProjects.isEmpty()) {
             JFlavourProjectBean project = allProjects.iterator().next();
+            this.activeProject = project;
             SortedSet<String> categories = project.getCategories();
             categoriesListModel.clear();
             for (Iterator<String> it = categories.iterator(); it.hasNext();) {
@@ -128,6 +202,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             }
             tmpLabel.setText(project.getName());
         } else {
+            activeProject = null;
             // TODO what to display when no project is loaded
         }
     }
