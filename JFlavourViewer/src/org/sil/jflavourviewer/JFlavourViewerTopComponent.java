@@ -128,7 +128,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             }
             tmpLabel.setText(project.getName());
         } else {
-            // TODO what to display when no project is loaded
+            // do nothing if no projects are in the lookup
         }
     }
 }
