@@ -13,7 +13,7 @@ import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
- */
+*/
 @ConvertAsProperties(
         dtd = "-//org.sil.jflavouritemeditor//JFlavourItemEditor//EN",
         autostore = false
@@ -21,15 +21,12 @@ import org.openide.util.NbBundle.Messages;
 @TopComponent.Description(
         preferredID = "JFlavourItemEditorTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+        persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@ActionID(category = "Window", id = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent")
+@ActionID(category = "window", id = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
-@TopComponent.OpenActionRegistration(
-        displayName = "#CTL_JFlavourItemEditorAction",
-        preferredID = "JFlavourItemEditorTopComponent"
-)
+@TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourItemEditorAction")
 @Messages({
     "CTL_JFlavourItemEditorAction=JFlavourItemEditor",
     "CTL_JFlavourItemEditorTopComponent=JFlavourItemEditor Window",
@@ -56,19 +53,45 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private void initComponents()
     {
 
+        jButton1 = new javax.swing.JButton();
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(110, 110, 110)
+                .addComponent(jButton1)
+                .addContainerGap(218, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(169, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(101, 101, 101))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
+    {//GEN-HEADEREND:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        TopComponent tc = new JFlavourItemEditorTopComponent();
+        tc.open();
+        tc.requestActive();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened()
