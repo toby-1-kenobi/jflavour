@@ -41,7 +41,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         setName(Bundle.CTL_JFlavourItemEditorTopComponent());
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
-
     }
 
     /**
