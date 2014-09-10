@@ -15,6 +15,8 @@ import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -49,6 +51,16 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         setToolTipText("Here are the items in the active project");
         categoriesListModel = new DefaultListModel<String>();
         categoryList.setModel(categoriesListModel);
+        
+        // add listener to monitor change in the System FileSystem
+        systemFsTools.addFileChangeListener(new FileChangeAdapter() {
+            // Only interested when other modules create or delete files in our directory
+            // then we just rebuild the tools control panel
+            @Override
+            public void fileDataCreated(FileEvent fe) {initControlPanel();}
+            @Override
+            public void fileDeleted(FileEvent fe) {initControlPanel();}
+        });
     }
 
     /** This method is called from within the constructor to
