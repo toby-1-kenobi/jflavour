@@ -5,11 +5,18 @@
  */
 package org.sil.jflavouritemeditor;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Top component which displays something.
@@ -292,6 +299,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed
     {//GEN-HEADEREND:event_btnCancelActionPerformed
         // TODO add your handling code here:
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get("filesystemOut_ed_btn.txt"), Charset.forName("UTF-8"));
+            exportFilesystem(FileUtil.getConfigRoot(), writer, 0);
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("couldn't write filesystem structure");
+        }
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnBrowseImagesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseImagesActionPerformed
@@ -352,5 +366,20 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
+    }
+    
+    void exportFilesystem(FileObject root, BufferedWriter writer, int depth) throws IOException
+    {
+        for (int i = 0; i < depth * 4; ++i)
+        {
+            writer.write(' ');
+        }
+        writer.write(root.getName());
+        writer.newLine();
+        FileObject[] children = root.getChildren();
+        for (FileObject child : children)
+        {
+            exportFilesystem(child, writer, depth + 1);
+        }
     }
 }
