@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.SortedSet;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import org.openide.filesystems.FileObject;
 import org.openide.util.LookupEvent;
 import org.openide.util.NbBundle;
@@ -124,14 +125,16 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         DataFolder toolsFolder = DataFolder.findFolder(systemFsTools);
         DataObject[] children = toolsFolder.getChildren();
         for (DataObject child : children) {
-            child.getName();
-            //FileObject file = child.getPrimaryFile();
-            /*
-            if (!file.isFolder()) {
-                Object method = file.getAttribute(ATTR_NAME_BUTTON_ACTION);
-                Object btnText = file.getAttribute(ATTR_NAME_BUTTON_NAME);
-                Object btnAlwaysActive = file.getAttribute(ATTR_NAME_BUTTON_BOOL_PROPERTY);
-            }*/
+            FileObject file = child.getPrimaryFile();
+            Object method = file.getAttribute(ATTR_NAME_BUTTON_ACTION);
+            Object btnText = file.getAttribute(ATTR_NAME_BUTTON_NAME);
+            Object btnAlwaysActive = file.getAttribute(ATTR_NAME_BUTTON_BOOL_PROPERTY);
+            JButton btn = new JButton();
+            if (btnText != null)
+            {
+                btn.setText((String)btnText);
+            }
+            panelTools.add(btn);
         }
         panelTools.revalidate();
     }
