@@ -50,14 +50,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public JFlavourViewerTopComponent()
     {
         initComponents();
-        systemFsTools = FileUtil.getConfigFile(TOOLS_PATH); 
-        try {
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get("filesystemOut.txt"), Charset.forName("UTF-8"));
-            exportFilesystem(FileUtil.getConfigRoot(), writer, 0);
-            writer.close();
-        } catch (IOException e) {
-            System.err.println("couldn't write filesystem structure");
-        }
+        systemFsTools = FileUtil.getConfigFile(TOOLS_PATH);
         initControlPanel();
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
         setDisplayName("Project Viewer");
@@ -98,13 +91,6 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         jSplitPane1.setLeftComponent(jScrollPane1);
 
         org.openide.awt.Mnemonics.setLocalizedText(tmpLabel, org.openide.util.NbBundle.getMessage(JFlavourViewerTopComponent.class, "JFlavourViewerTopComponent.tmpLabel.text")); // NOI18N
-        tmpLabel.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                tmpLabelMouseClicked(evt);
-            }
-        });
         jSplitPane1.setRightComponent(tmpLabel);
 
         javax.swing.GroupLayout panelToolsLayout = new javax.swing.GroupLayout(panelTools);
@@ -133,18 +119,6 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 .addComponent(panelTools, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tmpLabelMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_tmpLabelMouseClicked
-    {//GEN-HEADEREND:event_tmpLabelMouseClicked
-        // TODO add your handling code here:
-        try {
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get("filesystemOut_btn.txt"), Charset.forName("UTF-8"));
-            exportFilesystem(FileUtil.getConfigRoot(), writer, 0);
-            writer.close();
-        } catch (IOException e) {
-            System.err.println("couldn't write filesystem structure");
-        }
-    }//GEN-LAST:event_tmpLabelMouseClicked
 
     /**
      * This method is reads a directory in the SystemFilesytem to build the
@@ -188,21 +162,6 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public static final String ATTR_NAME_BUTTON_NAME = "text";
     public static final String ATTR_NAME_BUTTON_ACTION = "action";
     public static final String ATTR_NAME_BUTTON_BOOL_PROPERTY = "alwaysEnabled";
-    
-    void exportFilesystem(FileObject root, BufferedWriter writer, int depth) throws IOException
-    {
-        for (int i = 0; i < depth * 4; ++i)
-        {
-            writer.write(' ');
-        }
-        writer.write(root.getName());
-        writer.newLine();
-        FileObject[] children = root.getChildren();
-        for (FileObject child : children)
-        {
-            exportFilesystem(child, writer, depth + 1);
-        }
-    }
     
     @Override
     public void componentOpened()
