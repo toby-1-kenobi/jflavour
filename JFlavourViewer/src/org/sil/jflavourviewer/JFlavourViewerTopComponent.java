@@ -4,16 +4,16 @@
  */
 package org.sil.jflavourviewer;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.awt.FlowLayout;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedSet;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import org.openide.filesystems.FileObject;
 import org.openide.util.LookupEvent;
 import org.openide.util.NbBundle;
@@ -26,6 +26,7 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
@@ -50,6 +51,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public JFlavourViewerTopComponent()
     {
         initComponents();
+        panelTools.setLayout(new FlowLayout());
         systemFsTools = FileUtil.getConfigFile(TOOLS_PATH);
         initControlPanel();
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
@@ -122,22 +124,67 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
 
     /**
      * This method is reads a directory in the SystemFilesytem to build the
-     * buttons for a toolbar
+     * buttons for a control panel that depends on unknown modules
      */
     private void initControlPanel()
     {
+        // start fresh each time we build this
         panelTools.removeAll();
+        selectionDependantTools.clear();
+        // go to the folder where we can find the info for the buttons we're making
         DataFolder toolsFolder = DataFolder.findFolder(systemFsTools);
         DataObject[] children = toolsFolder.getChildren();
+        // we're assuming each child in the folder represents one button
         for (DataObject child : children) {
             FileObject file = child.getPrimaryFile();
-            Object method = file.getAttribute(ATTR_NAME_BUTTON_ACTION);
+            // get the atributes that tell us what the button will be like
+            Object actionMethodName = file.getAttribute(ATTR_NAME_BUTTON_ACTION_NAME);
             Object btnText = file.getAttribute(ATTR_NAME_BUTTON_NAME);
             Object btnAlwaysActive = file.getAttribute(ATTR_NAME_BUTTON_BOOL_PROPERTY);
             JButton btn = new JButton();
-            if (btnText != null)
-            {
+            if (btnText != null) {
                 btn.setText((String)btnText);
+            }
+            if (actionMethodName != null) {
+                // do the work of seperating the method name from the class name here
+                String fullMethodName = ((String)actionMethodName);
+                int seperator = fullMethodName.lastIndexOf('.');
+                String className = fullMethodName.substring(0, seperator);
+                String methodName = fullMethodName.substring(seperator + 1);
+                final Method action;
+                try {
+                    action = Class.forName(className).getMethod(methodName);
+                    // now we have the handler method we can attach it to the button with an action listener
+                    btn.addActionListener(new java.awt.event.ActionListener()
+                        {
+                            @Override
+                            public void actionPerformed(java.awt.event.ActionEvent evt)
+                            {
+                                try {
+                                    action.invoke(null);
+                                } catch (Exception ex) {
+                                    Exceptions.printStackTrace(ex);  
+                                }
+                            }
+                        });
+                } catch (ClassNotFoundException ex) {
+                    btn.setEnabled(false);
+                    Exceptions.printStackTrace(ex);
+                } catch (NoSuchMethodException ex) {
+                    btn.setEnabled(false);
+                    Exceptions.printStackTrace(ex);
+                }
+            } else {
+                btn.setEnabled(false);
+            }
+            if (btnAlwaysActive != null) {
+                // keep track of the buttons that need to be disabled or enabled
+                if (!((Boolean)btnAlwaysActive).booleanValue())
+                {
+                    selectionDependantTools.add(btn);
+                    btn.setEnabled(false);
+                    //Todo: enable if selection exists
+                }
             }
             panelTools.add(btn);
         }
@@ -155,12 +202,15 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     private DefaultListModel<String> categoriesListModel;
     private FileObject systemFsTools;
     
-    // These field can be public if anyone wnat to see them
-    // but the loose coupling of modules means that those who need to know
-    // still wont be able to - so they'll just have to know...
+    // keep a list of components that can only be used when items are selected
+    // that way we can enable and disbale them as needed
+    private List<JComponent> selectionDependantTools = new ArrayList<JComponent>();
+    
+    // Todo: put these in a seperate package that can be public API
     public static final String TOOLS_PATH = "UI/JFlavourTools";
     public static final String ATTR_NAME_BUTTON_NAME = "text";
     public static final String ATTR_NAME_BUTTON_ACTION = "action";
+    public static final String ATTR_NAME_BUTTON_ACTION_NAME = "actionName";
     public static final String ATTR_NAME_BUTTON_BOOL_PROPERTY = "alwaysEnabled";
     
     @Override
