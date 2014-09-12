@@ -5,6 +5,7 @@
 package org.sil.jflavourviewer;
 
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,34 +147,14 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 btn.setText((String)btnText);
             }
             if (actionMethodName != null) {
-                // do the work of seperating the method name from the class name here
-                String fullMethodName = ((String)actionMethodName);
-                int seperator = fullMethodName.lastIndexOf('.');
-                String className = fullMethodName.substring(0, seperator);
-                String methodName = fullMethodName.substring(seperator + 1);
-                final Method action;
-                try {
-                    action = Class.forName(className).getMethod(methodName);
-                    // now we have the handler method we can attach it to the button with an action listener
-                    btn.addActionListener(new java.awt.event.ActionListener()
+                btn.addActionListener(new java.awt.event.ActionListener()
+                    {
+                        @Override
+                        public void actionPerformed(ActionEvent e)
                         {
-                            @Override
-                            public void actionPerformed(java.awt.event.ActionEvent evt)
-                            {
-                                try {
-                                    action.invoke(null);
-                                } catch (Exception ex) {
-                                    Exceptions.printStackTrace(ex);  
-                                }
-                            }
-                        });
-                } catch (ClassNotFoundException ex) {
-                    btn.setEnabled(false);
-                    Exceptions.printStackTrace(ex);
-                } catch (NoSuchMethodException ex) {
-                    btn.setEnabled(false);
-                    Exceptions.printStackTrace(ex);
-                }
+                            // add a ToolEvent to the Lookup
+                        }
+                    });
             } else {
                 btn.setEnabled(false);
             }
