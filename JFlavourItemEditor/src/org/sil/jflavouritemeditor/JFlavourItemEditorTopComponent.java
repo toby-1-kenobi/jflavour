@@ -361,4 +361,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         // TODO read your settings according to their version
     }
     
+    /**
+     * create a new item and open in the editor window
+     */
+    public static void editNewItem()
+    {
+        TopComponent itemEditor = new JFlavourItemEditorTopComponent();
+        itemEditor.open();
+        itemEditor.requestActive();
+    }
 }
