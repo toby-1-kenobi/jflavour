@@ -54,7 +54,6 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         initComponents();
         panelTools.setLayout(new FlowLayout());
         systemFsTools = FileUtil.getConfigFile(TOOLS_PATH);
-        initControlPanel();
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
         setDisplayName("Project Viewer");
         setToolTipText("Here are the items in the active project");
@@ -199,6 +198,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     {
         result = Utilities.actionsGlobalContext().lookupResult(JFlavourProjectBean.class);
         result.addLookupListener (this);
+        initControlPanel();
     }
 
     @Override
