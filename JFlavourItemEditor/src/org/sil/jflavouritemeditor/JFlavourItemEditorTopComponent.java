@@ -29,7 +29,7 @@ import org.sil.jflavourapi.InterModuleEvent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = false)
+@TopComponent.Registration(mode = "properties", openAtStartup = false)
 @ActionID(category = "window", id = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourItemEditorAction")

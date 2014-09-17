@@ -48,7 +48,7 @@ autostore = false)
 @TopComponent.Description(preferredID = "JFlavourProjectManagerTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "properties", openAtStartup = true)
+@TopComponent.Registration(mode = "explorer", openAtStartup = true)
 @ActionID(category = "Window", id = "org.sil.jflavourprojectmanager.JFlavourProjectManagerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourProjectManagerAction",
