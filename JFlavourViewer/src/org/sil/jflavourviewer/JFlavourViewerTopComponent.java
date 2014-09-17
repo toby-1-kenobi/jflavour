@@ -6,7 +6,6 @@ package org.sil.jflavourviewer;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,10 +26,10 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
+import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -146,12 +145,14 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 btn.setText((String)btnText);
             }
             if (actionMethodName != null) {
+                final String identifier = (String)actionMethodName;
                 btn.addActionListener(new java.awt.event.ActionListener()
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
                         {
-                            // add a ToolEvent to the Lookup
+                            // Add a ToolEvent to the Central Lookup
+                            CentralLookup.getDefault().add(new ToolEvent(e, identifier));
                         }
                     });
             } else {
