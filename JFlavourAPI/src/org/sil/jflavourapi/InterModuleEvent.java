@@ -6,7 +6,7 @@
 
 package org.sil.jflavourapi;
 
-import java.awt.Event;
+import java.awt.event.ActionEvent;
 
 /**
  * This class defines something that modules can pass to each other through lookups
@@ -15,7 +15,7 @@ import java.awt.Event;
  */
 public interface InterModuleEvent
 {    
-    public Event getEvent();
+    public ActionEvent getEvent();
     
     public String getIdentifier();
     

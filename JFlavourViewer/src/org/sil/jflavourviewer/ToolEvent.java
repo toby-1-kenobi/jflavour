@@ -6,7 +6,7 @@
 
 package org.sil.jflavourviewer;
 
-import java.awt.Event;
+import java.awt.event.ActionEvent;
 import org.sil.jflavourapi.InterModuleEvent;
 
 /**
@@ -15,17 +15,17 @@ import org.sil.jflavourapi.InterModuleEvent;
  */
 public class ToolEvent implements InterModuleEvent
 {
-    private Event event;
+    private ActionEvent event;
     private String identifier;
     
-    public ToolEvent(Event event, String identifier)
+    public ToolEvent(ActionEvent event, String identifier)
     {
         this.event = event;
         this.identifier = identifier;
     }
 
     @Override
-    public Event getEvent()
+    public ActionEvent getEvent()
     {
         return event;
     }
