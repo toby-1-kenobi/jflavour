@@ -6,14 +6,16 @@
 package org.sil.jflavouritemeditor;
 
 import org.openide.modules.ModuleInstall;
+import org.openide.util.LookupListener;
 
 public class Installer extends ModuleInstall
+
 {
 
     @Override
     public void restored()
     {
-        // TODO
+        JFlavourItemEditorTopComponent.startHandlingInterModuleEvents();
     }
 
 }

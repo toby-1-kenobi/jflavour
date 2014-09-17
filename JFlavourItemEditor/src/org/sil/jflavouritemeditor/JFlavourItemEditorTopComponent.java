@@ -5,18 +5,17 @@
  */
 package org.sil.jflavouritemeditor;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Collection;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.util.LookupListener;
+import org.sil.jflavourapi.CentralLookup;
+import org.sil.jflavourapi.InterModuleEvent;
 
 /**
  * Top component which displays something.
@@ -335,6 +334,19 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private javax.swing.JTextField txtCategories;
     private javax.swing.JTextField txtItemLabel;
     // End of variables declaration//GEN-END:variables
+    
+    private static InterModuleEventHandler imeHandler = new InterModuleEventHandler();
+    
+    public static void startHandlingInterModuleEvents()
+    {
+        imeHandler.startListening();
+    }
+    
+    public static void stopHandlingInterModuleEvents()
+    {
+        imeHandler.stopListening();
+    }
+    
     @Override
     public void componentOpened()
     {
@@ -369,5 +381,42 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         TopComponent itemEditor = new JFlavourItemEditorTopComponent();
         itemEditor.open();
         itemEditor.requestActive();
+    }
+    
+    private static class InterModuleEventHandler implements LookupListener
+    {
+        
+        private Lookup.Result<InterModuleEvent> result = null;
+        public final String MODULE_ID = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent";
+        public final String NEW_ITEM_ACTION_ID = "editNewItem";
+        
+        public InterModuleEventHandler()
+        {
+            result = CentralLookup.getDefault().lookupResult(InterModuleEvent.class);
+        }
+        
+        public void startListening()
+        {
+            result.addLookupListener (this);
+        }
+        
+        public void stopListening()
+        {
+            result.removeLookupListener (this);
+        }
+        
+        @Override
+        public void resultChanged(LookupEvent le)
+        {
+            Collection<? extends InterModuleEvent> allEvents = result.allInstances();
+            if (!allEvents.isEmpty()) {
+                InterModuleEvent event = allEvents.iterator().next();
+                if (event.hasIdentifier(MODULE_ID + '.' + NEW_ITEM_ACTION_ID))
+                {
+                    JFlavourItemEditorTopComponent.editNewItem();
+                    CentralLookup.getDefault().remove(event);
+                }
+            }
+        }
     }
 }
