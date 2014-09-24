@@ -5,7 +5,14 @@
  */
 package org.sil.jflavouritemeditor;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -420,6 +427,28 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                     CentralLookup.getDefault().remove(event);
                 }
             }
+        }
+    }
+    
+    private class CategoryNode extends JPanel
+    {
+        String category;
+        
+        CategoryNode(String category)
+        {
+            this.category = category;
+            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.add(new JLabel(this.category));
+            JButton deleteBtn = new JButton();
+            deleteBtn.addActionListener(new ActionListener() {
+                @Override
+		public void actionPerformed(ActionEvent e) {
+                    Component c = (Component)(e.getSource());
+                    // remove the CategoryNode from its parent
+                    c.getParent().getParent().remove(c.getParent());
+		}
+            });
+            this.add(deleteBtn);
         }
     }
 }
