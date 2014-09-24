@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -65,6 +66,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
         this.item = item;
+        populateFromItem();
     }
 
     /**
@@ -79,7 +81,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         txtItemLabel = new javax.swing.JTextField();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
-        btnClose = new javax.swing.JButton();
+        btnOk = new javax.swing.JButton();
         panelCategories = new javax.swing.JPanel();
         labelCategories = new javax.swing.JLabel();
         txtCategories = new javax.swing.JTextField();
@@ -97,6 +99,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         jScrollPane6 = new javax.swing.JScrollPane();
         panelAudioList = new javax.swing.JPanel();
         panelImagePreview = new javax.swing.JPanel();
+        btnRevert = new javax.swing.JButton();
 
         txtItemLabel.addActionListener(new java.awt.event.ActionListener()
         {
@@ -124,7 +127,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnClose, "Close");
+        org.openide.awt.Mnemonics.setLocalizedText(btnOk, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnOk.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(labelCategories, "Categories");
 
@@ -250,6 +253,15 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        org.openide.awt.Mnemonics.setLocalizedText(btnRevert, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnRevert.text_1")); // NOI18N
+        btnRevert.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                populateFromItem(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -267,16 +279,18 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                                 .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(panelImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                         .addComponent(panelAudio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnCancel)
+                        .addComponent(btnRevert)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnCancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(55, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -294,7 +308,8 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel)
                     .addComponent(btnApply)
-                    .addComponent(btnClose))
+                    .addComponent(btnOk)
+                    .addComponent(btnRevert))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -340,13 +355,19 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         item.setCategories(newCategories);
     }//GEN-LAST:event_applyToItem
 
+    private void populateFromItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_populateFromItem
+    {//GEN-HEADEREND:event_populateFromItem
+        populateFromItem();
+    }//GEN-LAST:event_populateFromItem
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnBrowseAudio;
     private javax.swing.JButton btnBrowseImages;
     private javax.swing.JButton btnCancel;
-    private javax.swing.JButton btnClose;
+    private javax.swing.JButton btnOk;
+    private javax.swing.JButton btnRevert;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
@@ -417,12 +438,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     
     private void populateFromItem()
     {
-        
-    }
-    
-    private void applyToItem()
-    {
-    
+        txtItemLabel.setText(item.getLabel());
+        panelCategoriesList.removeAll();
+        for (Iterator<String> it = item.getCategories().iterator(); it.hasNext();) {
+            panelCategoriesList.add(new CategoryNode(it.next()));
+        }
     }
     
     private static class InterModuleEventHandler implements LookupListener
