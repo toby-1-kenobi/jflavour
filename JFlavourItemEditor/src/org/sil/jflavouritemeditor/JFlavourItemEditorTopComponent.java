@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -446,7 +447,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             this.category = category;
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             this.add(new JLabel(this.category));
-            JButton deleteBtn = new JButton("del");
+            JButton deleteBtn = new JButton();
             deleteBtn.addActionListener(new ActionListener() {
                 @Override
 		public void actionPerformed(ActionEvent e) {
@@ -458,6 +459,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                     parent.revalidate();
 		}
             });
+            deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
             this.add(deleteBtn);
         }
     }
