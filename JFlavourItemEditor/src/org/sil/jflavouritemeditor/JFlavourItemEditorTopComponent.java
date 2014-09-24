@@ -443,6 +443,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         for (Iterator<String> it = item.getCategories().iterator(); it.hasNext();) {
             panelCategoriesList.add(new CategoryNode(it.next()));
         }
+        panelCategoriesList.revalidate();
     }
     
     private static class InterModuleEventHandler implements LookupListener
