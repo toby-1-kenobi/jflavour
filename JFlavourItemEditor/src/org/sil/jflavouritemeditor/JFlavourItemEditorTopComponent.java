@@ -6,6 +6,7 @@
 package org.sil.jflavouritemeditor;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
@@ -305,7 +306,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
 
     private void txtCategoriesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtCategoriesActionPerformed
     {//GEN-HEADEREND:event_txtCategoriesActionPerformed
-        // TODO add your handling code here:
+        String text = txtCategories.getText();
+        String[] newCategories = text.split(",");
+        for (String category : newCategories) {
+            panelCategoriesList.add(new CategoryNode(category.trim()));
+            panelCategoriesList.revalidate();
+        }
+        txtCategories.setText("");
     }//GEN-LAST:event_txtCategoriesActionPerformed
 
 
@@ -439,13 +446,16 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             this.category = category;
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             this.add(new JLabel(this.category));
-            JButton deleteBtn = new JButton();
+            JButton deleteBtn = new JButton("del");
             deleteBtn.addActionListener(new ActionListener() {
                 @Override
 		public void actionPerformed(ActionEvent e) {
                     Component c = (Component)(e.getSource());
                     // remove the CategoryNode from its parent
-                    c.getParent().getParent().remove(c.getParent());
+                    Container node = c.getParent();
+                    Container parent = node.getParent();
+                    parent.remove(node);
+                    parent.revalidate();
 		}
             });
             this.add(deleteBtn);
