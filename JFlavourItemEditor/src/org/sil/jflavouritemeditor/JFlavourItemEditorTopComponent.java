@@ -9,7 +9,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -114,6 +116,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(btnApply, "Apply");
+        btnApply.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                applyToItem(evt);
+            }
+        });
 
         org.openide.awt.Mnemonics.setLocalizedText(btnClose, "Close");
 
@@ -316,6 +325,21 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         txtCategories.setText("");
     }//GEN-LAST:event_txtCategoriesActionPerformed
 
+    private void applyToItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_applyToItem
+    {//GEN-HEADEREND:event_applyToItem
+        item.setLabel(txtItemLabel.getText());
+        // TODO?: get tree lock for panelCategoriesList
+        Component[] children = panelCategoriesList.getComponents();
+        List<String> newCategories = new ArrayList<String>(children.length);
+        for (Component component : children) {
+            if (component instanceof CategoryNode)
+            {
+                newCategories.add(((CategoryNode)component).getCategory());
+            }
+        }
+        item.setCategories(newCategories);
+    }//GEN-LAST:event_applyToItem
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
@@ -461,6 +485,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             });
             deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
             this.add(deleteBtn);
+        }
+        
+        public String getCategory()
+        {
+            return category;
         }
     }
 }
