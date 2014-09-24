@@ -16,6 +16,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.LookupListener;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
+import org.sil.jflavourapi.JFlavourItemBean;
 
 /**
  * Top component which displays something.
@@ -40,13 +41,19 @@ import org.sil.jflavourapi.InterModuleEvent;
 })
 public final class JFlavourItemEditorTopComponent extends TopComponent
 {
-
+    
     public JFlavourItemEditorTopComponent()
+    {
+        this(new JFlavourItemBean());
+    }
+
+    public JFlavourItemEditorTopComponent(JFlavourItemBean item)
     {
         initComponents();
         setName(Bundle.CTL_JFlavourItemEditorTopComponent());
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+        this.item = item;
     }
 
     /**
@@ -102,6 +109,14 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         org.openide.awt.Mnemonics.setLocalizedText(btnClose, "Close");
 
         org.openide.awt.Mnemonics.setLocalizedText(labelCategories, "Categories");
+
+        txtCategories.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                txtCategoriesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelCategoriesListLayout = new javax.swing.GroupLayout(panelCategoriesList);
         panelCategoriesList.setLayout(panelCategoriesListLayout);
@@ -310,6 +325,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         // TODO add your handling code here:
     }//GEN-LAST:event_txtItemLabelActionPerformed
 
+    private void txtCategoriesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtCategoriesActionPerformed
+    {//GEN-HEADEREND:event_txtCategoriesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCategoriesActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
@@ -334,6 +354,8 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private javax.swing.JTextField txtCategories;
     private javax.swing.JTextField txtItemLabel;
     // End of variables declaration//GEN-END:variables
+    
+    private JFlavourItemBean item;
     
     private static InterModuleEventHandler imeHandler = new InterModuleEventHandler();
     
@@ -381,6 +403,16 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         TopComponent itemEditor = new JFlavourItemEditorTopComponent();
         itemEditor.open();
         itemEditor.requestActive();
+    }
+    
+    private void populateFromItem()
+    {
+        
+    }
+    
+    private void applyToItem()
+    {
+    
     }
     
     private static class InterModuleEventHandler implements LookupListener
