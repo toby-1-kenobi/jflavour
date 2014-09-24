@@ -118,17 +118,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             }
         });
 
-        javax.swing.GroupLayout panelCategoriesListLayout = new javax.swing.GroupLayout(panelCategoriesList);
-        panelCategoriesList.setLayout(panelCategoriesListLayout);
-        panelCategoriesListLayout.setHorizontalGroup(
-            panelCategoriesListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 155, Short.MAX_VALUE)
-        );
-        panelCategoriesListLayout.setVerticalGroup(
-            panelCategoriesListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 307, Short.MAX_VALUE)
-        );
-
+        panelCategoriesList.setLayout(new javax.swing.BoxLayout(panelCategoriesList, javax.swing.BoxLayout.Y_AXIS));
         jScrollPane4.setViewportView(panelCategoriesList);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "use comma between");
@@ -171,17 +161,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             }
         });
 
-        javax.swing.GroupLayout panelImagesListLayout = new javax.swing.GroupLayout(panelImagesList);
-        panelImagesList.setLayout(panelImagesListLayout);
-        panelImagesListLayout.setHorizontalGroup(
-            panelImagesListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 148, Short.MAX_VALUE)
-        );
-        panelImagesListLayout.setVerticalGroup(
-            panelImagesListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 305, Short.MAX_VALUE)
-        );
-
+        panelImagesList.setLayout(new javax.swing.BoxLayout(panelImagesList, javax.swing.BoxLayout.Y_AXIS));
         jScrollPane5.setViewportView(panelImagesList);
 
         javax.swing.GroupLayout panelImagesLayout = new javax.swing.GroupLayout(panelImages);
@@ -191,9 +171,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelImagesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane5)
                     .addComponent(labelImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnBrowseImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnBrowseImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelImagesLayout.createSequentialGroup()
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelImagesLayout.setVerticalGroup(
@@ -212,17 +194,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
 
         org.openide.awt.Mnemonics.setLocalizedText(btnBrowseAudio, "Browse...");
 
-        javax.swing.GroupLayout panelAudioListLayout = new javax.swing.GroupLayout(panelAudioList);
-        panelAudioList.setLayout(panelAudioListLayout);
-        panelAudioListLayout.setHorizontalGroup(
-            panelAudioListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 148, Short.MAX_VALUE)
-        );
-        panelAudioListLayout.setVerticalGroup(
-            panelAudioListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 305, Short.MAX_VALUE)
-        );
-
+        panelAudioList.setLayout(new javax.swing.BoxLayout(panelAudioList, javax.swing.BoxLayout.Y_AXIS));
         jScrollPane6.setViewportView(panelAudioList);
 
         javax.swing.GroupLayout panelAudioLayout = new javax.swing.GroupLayout(panelAudio);
@@ -272,13 +244,12 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(panelImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6)))
+                                .addComponent(panelImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelAudio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
