@@ -496,9 +496,9 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             deleteBtn.addActionListener(new ActionListener() {
                 @Override
 		public void actionPerformed(ActionEvent e) {
-                    Component c = (Component)(e.getSource());
+                    Component actionSource = (Component)(e.getSource());
                     // remove the CategoryNode from its parent
-                    Container node = c.getParent();
+                    Container node = actionSource.getParent();
                     Container parent = node.getParent();
                     parent.remove(node);
                     parent.revalidate();
