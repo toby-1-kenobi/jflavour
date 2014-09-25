@@ -7,8 +7,10 @@ package org.sil.jflavourapi;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -75,6 +77,17 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
             allCategories.addAll(item.getCategories());
         }
         return allCategories;
+    }
+    
+    public Set<JFlavourItemBean> getItemsInCategory(String category)
+    {
+        Set<JFlavourItemBean> items = new HashSet<JFlavourItemBean>();
+        for (JFlavourItemBean item : items) {
+            if (item.getCategories().contains(category)) {
+                items.add(item);
+            }
+        }
+        return items;
     }
     
     public String getName()
