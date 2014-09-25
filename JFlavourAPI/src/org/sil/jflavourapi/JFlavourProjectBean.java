@@ -11,23 +11,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 import org.jdom2.*;
 import org.jdom2.filter.ElementFilter;
 
 /**
  *
- * @author toby
+ * @author Toby Anderson
  */
 public class JFlavourProjectBean implements Serializable, PropertyChangeListener
 {
     
     private String name;
+    private UUID id;
     private List<JFlavourItemBean> items;
     private boolean dirty;
     private PropertyChangeSupport propertySupport;
     
     private final String XML_PROJECT = "jFlavourProject";
     private final String XML_PROJECT_NAME = "projectName";
+    private final String XML_PROJECT_ID = "projectUUID";
     private final String XML_ITEMS = "items";
     
     public static final String PROP_NAME = "name";
@@ -35,18 +38,28 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     public static final String PROP_ITEM = "item";
     public static final String PROP_DIRTY = "dirty";
     
+    /**
+     * Create a new empty nameless JFlavour project
+     */
     public JFlavourProjectBean()
     {
         name = "";
+        id = UUID.randomUUID();
         items = new ArrayList<JFlavourItemBean>(100);
         dirty = false;
         propertySupport = new PropertyChangeSupport(this);
     }
     
+    /**
+     * Construct a JFlavour project from a well formed XML document.
+     * The XML must be in the same format as that returned by {@link #toDomElement()}
+     * @param domElement The XML document from which to construct the project
+     */
     public JFlavourProjectBean(Element domElement)
     {
         this();
         name = domElement.getChildText(XML_PROJECT_NAME);
+        id = UUID.fromString(domElement.getChildText(XML_PROJECT_ID));
         Element allItems = domElement.getChild(XML_ITEMS);
         for (Iterator<Element> it = allItems.getDescendants(new ElementFilter()); it.hasNext();) {
             JFlavourItemBean item = new JFlavourItemBean(it.next());
@@ -137,7 +150,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     }
 
     /**
-     * @return the dirty
+     * @return true if this item has been set as dirty, otherwise false
      */
     public boolean getDirty()
     {
@@ -145,7 +158,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     }
 
     /**
-     * @param dirty the dirty to set
+     * @param dirty true to set this item as dirty, false to set it as clean
      */
     public void setDirty(boolean dirty)
     {
@@ -160,15 +173,24 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         }
     }
     
+    /**
+     * check if this item has been modified since last save.
+     * @return true if this item has been set as dirty, otherwise false
+     */
     public boolean isDirty()
     {
         return dirty;
     }
     
+    /**
+     * Build an XML representation of this project.
+     * @return the root element of the XML document built
+     */
     public Element toDomElement()
     {
         Element project = new Element(XML_PROJECT);
         project.addContent(new Element(XML_PROJECT_NAME).addContent(name));
+        project.addContent(new Element(XML_PROJECT_ID).addContent(id.toString()));
         Element itemList = new Element(XML_ITEMS);
         for (Iterator<JFlavourItemBean> it = items.iterator(); it.hasNext();) {
             JFlavourItemBean item = it.next();
