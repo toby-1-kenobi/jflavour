@@ -9,6 +9,7 @@ package org.sil.jflavournodeprojectmanager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.lookup.Lookups;
+import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  *
@@ -17,8 +18,8 @@ import org.openide.util.lookup.Lookups;
 public class CategoryNode extends AbstractNode
 {
      
-    public CategoryNode(String category) {
-        super (Children.create(new ItemChildFactory(category), true), Lookups.singleton(category));
+    public CategoryNode(String category, JFlavourProjectBean project) {
+        super (Children.create(new ItemChildFactory(category, project), true), Lookups.singleton(category));
         setDisplayName (category);
     }
 }

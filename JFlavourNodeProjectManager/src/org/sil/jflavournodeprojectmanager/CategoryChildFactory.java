@@ -37,7 +37,7 @@ public class CategoryChildFactory extends ChildFactory<String>
     
     @Override
     protected Node createNodeForKey(String key) {
-        return new CategoryNode(key);
+        return new CategoryNode(key, project);
     }
     
 }
