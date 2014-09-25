@@ -64,6 +64,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.sil.jdom2</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.sil.jflavourapi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>

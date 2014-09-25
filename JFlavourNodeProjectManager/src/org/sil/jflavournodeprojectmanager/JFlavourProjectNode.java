@@ -6,6 +6,7 @@
 
 package org.sil.jflavournodeprojectmanager;
 
+import java.io.IOException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.lookup.Lookups;
@@ -19,11 +20,11 @@ public class JFlavourProjectNode extends AbstractNode
 {
      
     public JFlavourProjectNode(JFlavourProjectBean project) {
-        super (Children.create(new CategoryChildFactory(), true), Lookups.singleton(obj));
-        setDisplayName ("Event " + project.getName());
+        super (Children.create(new CategoryChildFactory(project), true), Lookups.singleton(obj));
+        setDisplayName (project.getName());
     }
     
-    public JFlavourProjectNode() {
+    public JFlavourProjectNode() throws IOException {
         super (Children.create(new ProjectChildFactory(), true));
         setDisplayName ("Projects");
     }
