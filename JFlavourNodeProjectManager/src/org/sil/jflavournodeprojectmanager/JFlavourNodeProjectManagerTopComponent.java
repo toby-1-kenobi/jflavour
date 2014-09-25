@@ -5,9 +5,14 @@
  */
 package org.sil.jflavournodeprojectmanager;
 
+import java.awt.BorderLayout;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 
@@ -35,7 +40,7 @@ import org.openide.util.NbBundle.Messages;
     "CTL_JFlavourNodeProjectManagerTopComponent=JFlavourNodeProjectManager Window",
     "HINT_JFlavourNodeProjectManagerTopComponent=This is a JFlavourNodeProjectManager window"
 })
-public final class JFlavourNodeProjectManagerTopComponent extends TopComponent
+public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider
 {
 
     public JFlavourNodeProjectManagerTopComponent()
@@ -43,6 +48,11 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent
         initComponents();
         setName(Bundle.CTL_JFlavourNodeProjectManagerTopComponent());
         setToolTipText(Bundle.HINT_JFlavourNodeProjectManagerTopComponent());
+
+        setLayout(new BorderLayout());
+        add(new BeanTreeView(), BorderLayout.CENTER);
+        
+        //explorerManager.setRootContext(new AbstractNode(Children.create(new ProjectChildFactory(), true)));
 
     }
 
@@ -93,5 +103,13 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent
     {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
+    }
+    
+    private final ExplorerManager explorerManager = new ExplorerManager();
+
+    @Override
+    public ExplorerManager getExplorerManager()
+    {
+        return explorerManager;
     }
 }
