@@ -22,7 +22,7 @@ public class CategoryChildFactory extends ChildFactory<String>
     
     JFlavourProjectBean project;
     
-    public CategoryChildFactory(JFlavourProjectBean project) throws IOException
+    public CategoryChildFactory(JFlavourProjectBean project)
     {
         super();
         this.project = project;
