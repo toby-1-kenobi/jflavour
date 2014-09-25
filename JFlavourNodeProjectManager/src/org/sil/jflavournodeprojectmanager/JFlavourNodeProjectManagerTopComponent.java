@@ -6,6 +6,7 @@
 package org.sil.jflavournodeprojectmanager;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -13,6 +14,8 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 
@@ -52,7 +55,15 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         setLayout(new BorderLayout());
         add(new BeanTreeView(), BorderLayout.CENTER);
         
-        explorerManager.setRootContext(new JFlavourProjectNode());
+        try {
+            explorerManager.setRootContext(new ProjectNode());
+        } catch (IOException ex) {
+            Node noProjects = new AbstractNode(Children.LEAF);
+            noProjects.setDisplayName("No Projects");
+            noProjects.setShortDescription("No projects could be loaded.");
+            explorerManager.setRootContext(noProjects);
+            Exceptions.printStackTrace(ex);
+        }
 
     }
 

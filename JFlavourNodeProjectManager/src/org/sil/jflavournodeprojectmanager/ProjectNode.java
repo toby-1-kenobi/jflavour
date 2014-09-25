@@ -16,15 +16,15 @@ import org.sil.jflavourapi.JFlavourProjectBean;
  *
  * @author toby
  */
-public class JFlavourProjectNode extends AbstractNode
+public class ProjectNode extends AbstractNode
 {
      
-    public JFlavourProjectNode(JFlavourProjectBean project) {
+    public ProjectNode(JFlavourProjectBean project) {
         super (Children.create(new CategoryChildFactory(project), true), Lookups.singleton(obj));
         setDisplayName (project.getName());
     }
     
-    public JFlavourProjectNode() throws IOException {
+    public ProjectNode() throws IOException {
         super (Children.create(new ProjectChildFactory(), true));
         setDisplayName ("Projects");
     }
