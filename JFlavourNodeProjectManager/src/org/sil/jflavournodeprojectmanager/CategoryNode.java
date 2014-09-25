@@ -18,7 +18,7 @@ public class CategoryNode extends AbstractNode
 {
      
     public CategoryNode(String category) {
-        super (Children.create(new ItemChildFactory(category), true), Lookups.singleton(obj));
+        super (Children.create(new ItemChildFactory(category), true), Lookups.singleton(category));
         setDisplayName (category);
     }
 }
