@@ -52,7 +52,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         setLayout(new BorderLayout());
         add(new BeanTreeView(), BorderLayout.CENTER);
         
-        //explorerManager.setRootContext(new AbstractNode(Children.create(new ProjectChildFactory(), true)));
+        explorerManager.setRootContext(new JFlavourProjectNode());
 
     }
 
