@@ -9,7 +9,6 @@ package org.sil.jflavournodeprojectmanager;
 import java.util.List;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
-import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -17,29 +16,27 @@ import org.sil.jflavourapi.JFlavourProjectBean;
  * It needs to read the project data from an XML file
  * @author toby
  */
-public class ItemChildFactory extends ChildFactory<JFlavourItemBean>
+public class CategoryNodeFactory extends ChildFactory<String>
 {
     
     JFlavourProjectBean project;
-    String category;
     
-    public ItemChildFactory(String category, JFlavourProjectBean project)
+    public CategoryNodeFactory(JFlavourProjectBean project)
     {
         super();
         this.project = project;
-        this.category = category;
     }
 
     @Override
-    protected boolean createKeys(List<JFlavourItemBean> list)
+    protected boolean createKeys(List<String> list)
     {
-        list.addAll(project.getItemsInCategory(category));
+        list.addAll(project.getCategories());
         return true;
     }
     
     @Override
-    protected Node createNodeForKey(JFlavourItemBean key) {
-        return new ItemNode(key);
+    protected Node createNodeForKey(String key) {
+        return new CategoryNode(key, project);
     }
     
 }

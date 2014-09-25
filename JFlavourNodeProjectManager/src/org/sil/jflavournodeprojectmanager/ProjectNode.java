@@ -20,12 +20,12 @@ public class ProjectNode extends AbstractNode
 {
      
     public ProjectNode(JFlavourProjectBean project) {
-        super (Children.create(new CategoryChildFactory(project), true), Lookups.singleton(project));
+        super (Children.create(new CategoryNodeFactory(project), true), Lookups.singleton(project));
         setDisplayName (project.getName());
     }
     
     public ProjectNode() throws IOException {
-        super (Children.create(new ProjectChildFactory(), true));
+        super (Children.create(new ProjectNodeFactory(), true));
         setDisplayName ("Projects");
     }
 }

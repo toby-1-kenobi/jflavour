@@ -19,7 +19,7 @@ public class CategoryNode extends AbstractNode
 {
      
     public CategoryNode(String category, JFlavourProjectBean project) {
-        super (Children.create(new ItemChildFactory(category, project), true), Lookups.singleton(category));
+        super (Children.create(new ItemNodeFactory(category, project), true), Lookups.singleton(category));
         setDisplayName (category);
     }
 }

@@ -30,7 +30,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
  * It needs to read the project data from an XML file
  * @author toby
  */
-public class ProjectChildFactory extends ChildFactory<JFlavourProjectBean>
+public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
 {
     
     private Path dataDirectory;
@@ -41,7 +41,7 @@ public class ProjectChildFactory extends ChildFactory<JFlavourProjectBean>
     private final String XML_PROJECT_ID = "jFlavourProjectID";
     private final String PROJECT_FILE_EXT = "jfp";
     
-    public ProjectChildFactory() throws IOException
+    public ProjectNodeFactory() throws IOException
     {
         super();
         dataDirectory = JFlavourPathManager.getDataDirectory();
