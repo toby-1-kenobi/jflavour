@@ -6,7 +6,18 @@
 package org.sil.jflavournodeprojectmanager;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import org.jdom2.Document;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -18,6 +29,8 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.sil.jflavourapi.JFlavourPathManager;
+import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  * Top component which displays something.
@@ -45,6 +58,8 @@ import org.openide.util.NbBundle.Messages;
 })
 public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider
 {
+    
+    private JButton btnNewProject;
 
     public JFlavourNodeProjectManagerTopComponent()
     {
@@ -54,6 +69,14 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
 
         setLayout(new BorderLayout());
         add(new BeanTreeView(), BorderLayout.CENTER);
+        btnNewProject = new JButton("New Project");
+        btnNewProject.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                createNewProject();
+            }
+        });
+        add(btnNewProject, BorderLayout.NORTH);
         
         try {
             explorerManager.setRootContext(new ProjectNode());
@@ -90,6 +113,31 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+    private void createNewProject()
+    {
+        String name = JOptionPane.showInputDialog(this, "What is the project's name?", "New Project Name", JOptionPane.QUESTION_MESSAGE);
+        JFlavourProjectBean project = new JFlavourProjectBean();
+        project.setName(name);
+        ProjectNodeFactory.addToCache(project);
+        saveProject(project);
+        ProjectNodeFactory.writeCache();
+        //TODO: refresh the project nodes
+    }
+    
+    private void saveProject(JFlavourProjectBean project)
+    {
+        Document projectDoc = new Document(project.toDomElement());
+        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
+        Path projectPath = JFlavourPathManager.getDataDirectory().resolve(project.getId().toString() + '.' + ProjectNodeFactory.PROJECT_FILE_EXT);
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
+            xout.output(projectDoc, writer);
+            project.setDirty(false);
+        } catch (IOException x) {
+            System.err.format(" Save project IOException: %s%n", x);
+        }
+    }
+    
     @Override
     public void componentOpened()
     {
