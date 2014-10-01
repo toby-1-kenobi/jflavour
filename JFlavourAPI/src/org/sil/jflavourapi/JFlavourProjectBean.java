@@ -195,6 +195,11 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         return dirty;
     }
     
+    public UUID getId()
+    {
+        return id;
+    }
+    
     /**
      * Build an XML representation of this project.
      * @return the root element of the XML document built

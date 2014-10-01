@@ -6,22 +6,25 @@
 
 package org.sil.jflavournodeprojectmanager;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
-import org.openide.nodes.AbstractNode;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.openide.nodes.ChildFactory;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.JFlavourPathManager;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -33,19 +36,46 @@ import org.sil.jflavourapi.JFlavourProjectBean;
 public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
 {
     
-    private Path dataDirectory;
-    private final String PROJECT_ID_FILENAME = "projects.xml";
-    private final String XML_PROJECT_LIST = "jFlavourProjectList";
-    private final String XML_PROJECT = "jFlavourProject";
-    private final String XML_PROJECT_NAME = "jFlavourProjectName";
-    private final String XML_PROJECT_ID = "jFlavourProjectID";
-    private final String PROJECT_FILE_EXT = "jfp";
+    private static Path dataDirectory;
+    public static final String PROJECT_ID_FILENAME = "projects.xml";
+    public static final String XML_PROJECT_LIST = "jFlavourProjectList";
+    public static final String XML_PROJECT = "jFlavourProject";
+    public static final String XML_PROJECT_NAME = "jFlavourProjectName";
+    public static final String XML_PROJECT_ID = "jFlavourProjectID";
+    public static final String PROJECT_FILE_EXT = "jfp";
+    
+    private static Map<UUID, JFlavourProjectBean> projectCache = new HashMap<UUID, JFlavourProjectBean>();
     
     public ProjectNodeFactory() throws IOException
     {
         super();
         dataDirectory = JFlavourPathManager.getDataDirectory();
         Files.createDirectories(dataDirectory);
+    }
+    
+    public static void addToCache(JFlavourProjectBean project)
+    {
+        projectCache.put(project.getId(), project);
+    }
+    
+    public static void writeCache()
+    {
+        Element root = new Element(XML_PROJECT_LIST);
+        Document projectIdDoc = new Document(root);
+        for (Map.Entry<UUID, JFlavourProjectBean> projectCacheEntry : projectCache.entrySet()) {
+            Element projectElem = new Element(XML_PROJECT);
+            projectElem.addContent(new Element(XML_PROJECT_ID).addContent(projectCacheEntry.getKey().toString()));
+            projectElem.addContent(new Element(XML_PROJECT_NAME).addContent(projectCacheEntry.getValue().getName()));
+            root.addContent(projectElem);
+        }
+        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
+        Path projectIdPath = dataDirectory.resolve(PROJECT_ID_FILENAME);
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(projectIdPath, Charset.forName("UTF-8"));
+            xout.output(projectIdDoc, writer);
+        } catch (IOException x) {
+            System.err.format("Save project IDs IOException: %s%n", x);
+        }
     }
 
     @Override
@@ -63,14 +93,18 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
                     UUID id = UUID.fromString(projectNode.getChild(XML_PROJECT_ID).getText());
                     String name = projectNode.getChild(XML_PROJECT_NAME).getText();
                     Path projectPath = dataDirectory.resolve(id.toString() + '.' + PROJECT_FILE_EXT);
-                    if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath)) {
+                    if (projectCache.containsKey(id)) {
+                        list.add(projectCache.get(id));
+                    }
+                    else if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath)) {
                         Document projectDoc = builder.build(projectPath.toFile());
                         Element projectRoot = projectDoc.getContent(new ElementFilter()).get(0);
                         JFlavourProjectBean project = new JFlavourProjectBean(projectRoot);
+                        projectCache.put(id, project);
                         list.add(project);
                     }
                     else {
-                        throw new IOException("could not read JFlavour project at " + projectPath);
+                        throw new IOException("could not read JFlavour project " + name + " from " + projectPath);
                     }
                 }
             } catch(JDOMException x) {
