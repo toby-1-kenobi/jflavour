@@ -60,6 +60,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
 {
     
     private JButton btnNewProject;
+    private ProjectNode root;
 
     public JFlavourNodeProjectManagerTopComponent()
     {
@@ -79,13 +80,15 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         add(btnNewProject, BorderLayout.NORTH);
         
         try {
-            explorerManager.setRootContext(new ProjectNode());
+            root = new ProjectNode();
+            explorerManager.setRootContext(root);
         } catch (IOException ex) {
             Node noProjects = new AbstractNode(Children.LEAF);
             noProjects.setDisplayName("No Projects");
             noProjects.setShortDescription("No projects could be loaded.");
             explorerManager.setRootContext(noProjects);
             Exceptions.printStackTrace(ex);
+            root = null;
         }
 
     }
@@ -121,7 +124,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         ProjectNodeFactory.addToCache(project);
         saveProject(project);
         ProjectNodeFactory.writeCache();
-        //TODO: refresh the project nodes
+        root.refresh();
     }
     
     private void saveProject(JFlavourProjectBean project)
