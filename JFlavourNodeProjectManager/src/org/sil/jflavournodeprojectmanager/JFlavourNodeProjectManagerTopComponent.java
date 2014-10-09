@@ -22,6 +22,7 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -61,7 +62,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
     
     private JButton btnNewProject;
     private ProjectNode root;
-
+    
     public JFlavourNodeProjectManagerTopComponent()
     {
         initComponents();
@@ -70,6 +71,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
 
         setLayout(new BorderLayout());
         add(new BeanTreeView(), BorderLayout.CENTER);
+        
         btnNewProject = new JButton("New Project");
         btnNewProject.addActionListener(new ActionListener() {
             @Override
@@ -78,6 +80,8 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
             }
         });
         add(btnNewProject, BorderLayout.NORTH);
+        
+        associateLookup(ExplorerUtils.createLookup(explorerManager, this.getActionMap()));
         
         try {
             root = new ProjectNode();
