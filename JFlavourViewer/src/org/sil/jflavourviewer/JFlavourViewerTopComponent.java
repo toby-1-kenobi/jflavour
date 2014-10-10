@@ -4,6 +4,7 @@
  */
 package org.sil.jflavourviewer;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import org.openide.filesystems.FileObject;
 import org.openide.util.LookupEvent;
 import org.openide.util.NbBundle;
@@ -51,13 +53,17 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public JFlavourViewerTopComponent()
     {
         initComponents();
+        setLayout(new BorderLayout());
+        labelActiveProject = new JLabel("No active project");
+        panelTools = new JPanel();
         panelTools.setLayout(new FlowLayout());
+        add(labelActiveProject, BorderLayout.NORTH);
+        add(panelTools, BorderLayout.SOUTH);
+        
         systemFsTools = FileUtil.getConfigFile(TOOLS_PATH);
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
         setDisplayName("Project Viewer");
         setToolTipText("Here are the items in the active project");
-        categoriesListModel = new DefaultListModel<String>();
-        categoryList.setModel(categoriesListModel);
         
         // add listener to monitor change in the System FileSystem
         systemFsTools.addFileChangeListener(new FileChangeAdapter() {
@@ -79,45 +85,15 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     private void initComponents()
     {
 
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        categoryList = new javax.swing.JList();
-        tmpLabel = new javax.swing.JLabel();
-        panelTools = new javax.swing.JPanel();
-
-        jSplitPane1.setDividerLocation(100);
-
-        jScrollPane1.setViewportView(categoryList);
-
-        jSplitPane1.setLeftComponent(jScrollPane1);
-
-        org.openide.awt.Mnemonics.setLocalizedText(tmpLabel, org.openide.util.NbBundle.getMessage(JFlavourViewerTopComponent.class, "JFlavourViewerTopComponent.tmpLabel.text")); // NOI18N
-        jSplitPane1.setRightComponent(tmpLabel);
-
-        javax.swing.GroupLayout panelToolsLayout = new javax.swing.GroupLayout(panelTools);
-        panelTools.setLayout(panelToolsLayout);
-        panelToolsLayout.setHorizontalGroup(
-            panelToolsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        panelToolsLayout.setVerticalGroup(
-            panelToolsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-            .addComponent(panelTools, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(panelTools, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGap(0, 346, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -173,14 +149,11 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList categoryList;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JPanel panelTools;
-    private javax.swing.JLabel tmpLabel;
     // End of variables declaration//GEN-END:variables
+    private JPanel panelTools;
+    private JLabel labelActiveProject;
+    
     private Lookup.Result<JFlavourProjectBean> result = null;
-    private DefaultListModel<String> categoriesListModel;
     private FileObject systemFsTools;
     
     // keep a list of components that can only be used when items are selected
