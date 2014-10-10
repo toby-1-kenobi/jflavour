@@ -8,6 +8,7 @@ package org.sil.jflavourviewer;
 
 import java.awt.event.ActionEvent;
 import org.sil.jflavourapi.InterModuleEvent;
+import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  *
@@ -17,11 +18,13 @@ public class ToolEvent implements InterModuleEvent
 {
     private ActionEvent event;
     private String identifier;
+    private JFlavourProjectBean project;
     
-    public ToolEvent(ActionEvent event, String identifier)
+    public ToolEvent(ActionEvent event, String identifier, JFlavourProjectBean project)
     {
         this.event = event;
         this.identifier = identifier;
+        this.project = project;
     }
 
     @Override
@@ -40,6 +43,12 @@ public class ToolEvent implements InterModuleEvent
     public boolean hasIdentifier(String id)
     {
         return identifier.equals(id);
+    }
+
+    @Override
+    public JFlavourProjectBean getProject()
+    {
+        return project;
     }
     
 }

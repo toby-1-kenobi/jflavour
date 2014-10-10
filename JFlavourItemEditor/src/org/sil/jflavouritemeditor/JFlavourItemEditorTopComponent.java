@@ -29,6 +29,7 @@ import org.openide.util.LookupListener;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
 import org.sil.jflavourapi.JFlavourItemBean;
+import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  * Top component which displays something.
@@ -429,9 +430,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     /**
      * create a new item and open in the editor window
      */
-    public static void editNewItem()
+    public static void editNewItem(JFlavourProjectBean project)
     {
-        TopComponent itemEditor = new JFlavourItemEditorTopComponent();
+        JFlavourItemBean newItem = new JFlavourItemBean();
+        project.addItem(newItem);
+        TopComponent itemEditor = new JFlavourItemEditorTopComponent(newItem);
         itemEditor.open();
         itemEditor.requestActive();
     }
@@ -476,7 +479,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                 InterModuleEvent event = allEvents.iterator().next();
                 if (event.hasIdentifier(MODULE_ID + '.' + NEW_ITEM_ACTION_ID))
                 {
-                    JFlavourItemEditorTopComponent.editNewItem();
+                    JFlavourItemEditorTopComponent.editNewItem(event.getProject());
                     CentralLookup.getDefault().remove(event);
                 }
             }

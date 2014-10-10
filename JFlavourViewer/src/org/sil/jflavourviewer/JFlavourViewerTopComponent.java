@@ -9,9 +9,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -23,6 +21,8 @@ import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.IconView;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileUtil;
@@ -47,7 +47,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourViewerAction",
 preferredID = "JFlavourViewerTopComponent")
-public final class JFlavourViewerTopComponent extends TopComponent implements LookupListener
+public final class JFlavourViewerTopComponent extends TopComponent implements LookupListener, ExplorerManager.Provider
 {
 
     public JFlavourViewerTopComponent()
@@ -59,6 +59,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         panelTools.setLayout(new FlowLayout());
         add(labelActiveProject, BorderLayout.NORTH);
         add(panelTools, BorderLayout.SOUTH);
+        add(new IconView(), BorderLayout.CENTER);
         
         systemFsTools = FileUtil.getConfigFile(TOOLS_PATH);
         setName(NbBundle.getMessage(JFlavourViewerTopComponent.class, "CTL_JFlavourViewerTopComponent"));
@@ -128,7 +129,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                         public void actionPerformed(ActionEvent e)
                         {
                             // Add a ToolEvent to the Central Lookup
-                            CentralLookup.getDefault().add(new ToolEvent(e, identifier));
+                            CentralLookup.getDefault().add(new ToolEvent(e, identifier, activeProject));
                         }
                     });
             } else {
@@ -152,6 +153,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     // End of variables declaration//GEN-END:variables
     private JPanel panelTools;
     private JLabel labelActiveProject;
+    
+    private JFlavourProjectBean activeProject;
     
     private Lookup.Result<JFlavourProjectBean> result = null;
     private FileObject systemFsTools;
@@ -200,15 +203,18 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     {
         Collection<? extends JFlavourProjectBean> allProjects = result.allInstances();
         if (!allProjects.isEmpty()) {
-            JFlavourProjectBean project = allProjects.iterator().next();
-            SortedSet<String> categories = project.getCategories();
-            categoriesListModel.clear();
-            for (Iterator<String> it = categories.iterator(); it.hasNext();) {
-                categoriesListModel.addElement(it.next());
-            }
-            tmpLabel.setText(project.getName());
+            activeProject = allProjects.iterator().next();
+            labelActiveProject.setText(activeProject.getName());
         } else {
             // do nothing if no projects are in the lookup
         }
+    }
+    
+    private final ExplorerManager explorerManager = new ExplorerManager();
+
+    @Override
+    public ExplorerManager getExplorerManager()
+    {
+        return explorerManager;
     }
 }

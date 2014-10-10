@@ -20,4 +20,6 @@ public interface InterModuleEvent
     public String getIdentifier();
     
     public boolean hasIdentifier(String id);
+    
+    public JFlavourProjectBean getProject();
 }
