@@ -334,16 +334,32 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     {//GEN-HEADEREND:event_txtCategoriesActionPerformed
         String text = txtCategories.getText();
         String[] newCategories = text.split(",");
-        for (String category : newCategories) {
-            panelCategoriesList.add(new CategoryNode(category.trim()));
-            panelCategoriesList.revalidate();
+        // We need to make sure we're not adding to the list one that's already there
+        Component[] children = panelCategoriesList.getComponents();
+        List<String> existingCategories = new ArrayList<String>(children.length);
+        for (Component component : children) {
+            if (component instanceof CategoryNode)
+            {
+                existingCategories.add(((CategoryNode)component).getCategory());
+            }
         }
+        // Now add to the list categories that aren't already there
+        for (String category : newCategories) {
+            if (!existingCategories.contains(category.trim())) {
+                panelCategoriesList.add(new CategoryNode(category.trim()));
+                setFormDirty();
+            }
+        }
+        panelCategoriesList.revalidate();
         txtCategories.setText("");
     }//GEN-LAST:event_txtCategoriesActionPerformed
 
     private void applyToItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_applyToItem
     {//GEN-HEADEREND:event_applyToItem
+        // Apply the label to the item
         item.setLabel(txtItemLabel.getText());
+        
+        // Apply the listed categories to the item
         // TODO?: get tree lock for panelCategoriesList
         Component[] children = panelCategoriesList.getComponents();
         List<String> newCategories = new ArrayList<String>(children.length);
@@ -354,6 +370,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             }
         }
         item.setCategories(newCategories);
+        setFormClean();
     }//GEN-LAST:event_applyToItem
 
     private void populateFromItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_populateFromItem
@@ -447,6 +464,19 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             panelCategoriesList.add(new CategoryNode(it.next()));
         }
         panelCategoriesList.revalidate();
+        setFormClean();
+    }
+    
+    private void setFormDirty()
+    {
+        btnApply.setEnabled(true);
+        btnCancel.setEnabled(true);
+    }
+    
+    private void setFormClean()
+    {
+        btnApply.setEnabled(false);
+        btnCancel.setEnabled(false);
     }
     
     private static class InterModuleEventHandler implements LookupListener
