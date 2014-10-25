@@ -26,6 +26,7 @@ import org.openide.util.LookupEvent;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.LookupListener;
+import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
 import org.sil.jflavourapi.JFlavourItemBean;
@@ -336,7 +337,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         String[] newCategories = text.split(",");
         // We need to make sure we're not adding to the list one that's already there
         Component[] children = panelCategoriesList.getComponents();
-        List<String> existingCategories = new ArrayList<String>(children.length);
+        List<Category> existingCategories = new ArrayList<Category>(children.length);
         for (Component component : children) {
             if (component instanceof CategoryNode)
             {
@@ -344,9 +345,10 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             }
         }
         // Now add to the list categories that aren't already there
-        for (String category : newCategories) {
-            if (!existingCategories.contains(category.trim())) {
-                panelCategoriesList.add(new CategoryNode(category.trim()));
+        for (String categoryName : newCategories) {
+            Category category = new Category(categoryName);
+            if (!existingCategories.contains(category)) {
+                panelCategoriesList.add(new CategoryNode(category));
                 setFormDirty();
             }
         }
@@ -362,7 +364,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         // Apply the listed categories to the item
         // TODO?: get tree lock for panelCategoriesList
         Component[] children = panelCategoriesList.getComponents();
-        List<String> newCategories = new ArrayList<String>(children.length);
+        List<Category> newCategories = new ArrayList<Category>(children.length);
         for (Component component : children) {
             if (component instanceof CategoryNode)
             {
@@ -460,7 +462,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     {
         txtItemLabel.setText(item.getLabel());
         panelCategoriesList.removeAll();
-        for (Iterator<String> it = item.getCategories().iterator(); it.hasNext();) {
+        for (Iterator<Category> it = item.getCategories().iterator(); it.hasNext();) {
             panelCategoriesList.add(new CategoryNode(it.next()));
         }
         panelCategoriesList.revalidate();
@@ -518,13 +520,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     
     private class CategoryNode extends JPanel
     {
-        String category;
+        Category category;
         
-        CategoryNode(String category)
+        CategoryNode(Category category)
         {
             this.category = category;
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            this.add(new JLabel(this.category));
+            this.add(new JLabel(this.category.toString()));
             JButton deleteBtn = new JButton();
             deleteBtn.addActionListener(new ActionListener() {
                 @Override
@@ -535,13 +537,14 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                     Container parent = node.getParent();
                     parent.remove(node);
                     parent.revalidate();
+                    parent.repaint();
 		}
             });
             deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
             this.add(deleteBtn);
         }
         
-        public String getCategory()
+        public Category getCategory()
         {
             return category;
         }

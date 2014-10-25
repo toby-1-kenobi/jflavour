@@ -9,6 +9,7 @@ package org.sil.jflavournodeprojectmanager;
 import java.util.List;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
+import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -21,9 +22,9 @@ public class ItemNodeFactory extends ChildFactory<JFlavourItemBean>
 {
     
     JFlavourProjectBean project;
-    String category;
+    Category category;
     
-    public ItemNodeFactory(String category, JFlavourProjectBean project)
+    public ItemNodeFactory(Category category, JFlavourProjectBean project)
     {
         super();
         this.project = project;

@@ -6,9 +6,12 @@
 
 package org.sil.jflavournodeprojectmanager;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
+import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -30,13 +33,16 @@ public class CategoryNodeFactory extends ChildFactory<String>
     @Override
     protected boolean createKeys(List<String> list)
     {
-        list.addAll(project.getCategories());
+        SortedSet<Category> allCategories = project.getCategories();
+        for (Iterator<Category> it = allCategories.iterator(); it.hasNext();) {
+            list.add(it.next().toString());
+        }
         return true;
     }
     
     @Override
     protected Node createNodeForKey(String key) {
-        return new CategoryNode(key, project);
+        return new CategoryNode(new Category(key), project);
     }
     
 }

@@ -24,7 +24,7 @@ public class JFlavourItemBean implements Serializable
     public static final String PROP_LABEL = "label";
     public static final String PROP_DIRTY = "dirty";
     private String label;
-    private List<String> categories;
+    private List<Category> categories;
     private List<Path> audioFilePaths;
     private List<Path> imageFilePaths;
     private boolean dirty;
@@ -40,7 +40,7 @@ public class JFlavourItemBean implements Serializable
     public JFlavourItemBean()
     {
         label = "";
-        categories = new ArrayList<String>(5);
+        categories = new ArrayList<Category>(5);
         audioFilePaths = new ArrayList<Path>(5);
         imageFilePaths = new ArrayList<Path>(5);
         dirty = false;
@@ -53,7 +53,7 @@ public class JFlavourItemBean implements Serializable
         label = domElement.getChildText(XML_LABEL);
         Element categories = domElement.getChild(XML_CATEGORY);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.categories.add(it.next().getText());          
+            this.categories.add(new Category(it.next().getText()));          
         }
         Element audio = domElement.getChild(XML_AUDIO);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
@@ -92,12 +92,12 @@ public class JFlavourItemBean implements Serializable
     /**
      * @return the categories
      */
-    public List<String> getCategories()
+    public List<Category> getCategories()
     {
         return categories;
     }
     
-    public String getCategories(int index)
+    public Category getCategories(int index)
     {
         return categories.get(index);
     }
@@ -105,19 +105,19 @@ public class JFlavourItemBean implements Serializable
     /**
      * @param categories the categories to set
      */
-    public void setCategories(List<String> categories)
+    public void setCategories(List<Category> categories)
     {
         this.categories = categories;
         setDirty(true);
     }
     
-    public void setCategories(int index, String category)
+    public void setCategories(int index, Category category)
     {
         this.categories.set(index, category);
         setDirty(true);
     }
     
-    public void addCategory(String category)
+    public void addCategory(Category category)
     {
         this.categories.add(category);
         setDirty(true);
@@ -218,8 +218,8 @@ public class JFlavourItemBean implements Serializable
         Element itemElement = new Element(XML_ITEM);
         itemElement.addContent(new Element(XML_LABEL).addContent(label));
         Element categoryList = new Element(XML_CATEGORY);
-        for (Iterator<String> it = categories.iterator(); it.hasNext();) {
-            categoryList.addContent(new Element(XML_PATH).addContent(it.next()));
+        for (Iterator<Category> it = categories.iterator(); it.hasNext();) {
+            categoryList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(categoryList);
         Element audioList = new Element(XML_CATEGORY);
