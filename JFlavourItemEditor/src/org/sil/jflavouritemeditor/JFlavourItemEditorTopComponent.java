@@ -64,6 +64,8 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     public JFlavourItemEditorTopComponent(JFlavourItemBean item)
     {
         initComponents();
+        imagePreview = new ImagePanel();
+        panelImagePreview.add(imagePreview);
         setName(Bundle.CTL_JFlavourItemEditorTopComponent());
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
@@ -405,6 +407,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private javax.swing.JTextField txtCategories;
     private javax.swing.JTextField txtItemLabel;
     // End of variables declaration//GEN-END:variables
+    private ImagePanel imagePreview;
     
     private JFlavourItemBean item;
     
