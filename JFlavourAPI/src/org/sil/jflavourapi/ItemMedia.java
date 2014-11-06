@@ -55,4 +55,10 @@ public abstract class ItemMedia
      */
     public abstract void unload();
     
+    @Override
+    public String toString()
+    {
+        return mediaFile.getFileName().toString();
+    }
+    
 }

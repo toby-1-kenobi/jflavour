@@ -14,10 +14,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -29,6 +31,7 @@ import org.openide.util.LookupListener;
 import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
+import org.sil.jflavourapi.ItemImage;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -521,15 +524,10 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         }
     }
     
-    private class CategoryNode extends JPanel
+    private abstract class EditorNode extends JPanel
     {
-        Category category;
-        
-        CategoryNode(Category category)
+        protected JButton makeDeleteButton()
         {
-            this.category = category;
-            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            this.add(new JLabel(this.category.toString()));
             JButton deleteBtn = new JButton();
             deleteBtn.addActionListener(new ActionListener() {
                 @Override
@@ -544,12 +542,89 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
 		}
             });
             deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
-            this.add(deleteBtn);
+            return deleteBtn;
+        }
+        
+        protected JToggleButton makeDefaultButton()
+        {
+            JToggleButton defaultBtn = new JToggleButton();
+            defaultBtn.addActionListener(new ActionListener() {
+                @Override
+		public void actionPerformed(ActionEvent e) {
+                    JToggleButton actionSource = (JToggleButton)(e.getSource());
+                    if(!actionSource.isSelected()) {
+                        // Cannot manually unset default toggle, so toggle again if unset
+                        actionSource.setSelected(true);
+                    } else {
+                        // otherwise unset all other default toggles in this list
+                        actionSource.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
+                        Icon blackTick = new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png"));
+                        Container node = actionSource.getParent();
+                        Component[] allNodes = node.getParent().getComponents();
+                        for (int i = 0; i < allNodes.length; ++i) 
+                        {
+                            try {
+                                HasDefaultButton nodeD = (HasDefaultButton)allNodes[i];
+                                if (nodeD != node) {
+                                    nodeD.unsetDefault(blackTick);
+                                }
+                            } catch (ClassCastException cce) {
+                                // somehow we've got a node that doesn't implement the HasDefaultButton interface
+                                // so we'll just ignore this one
+                            }
+                        }
+                    }
+		}
+            });
+            defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png")));
+            return defaultBtn;
+        }
+    }
+    
+    private interface HasDefaultButton
+    {
+        public void unsetDefault(Icon unsetIcon);
+    }
+    
+    private class CategoryNode extends EditorNode
+    {
+        private Category category;
+        
+        public CategoryNode(Category category)
+        {
+            this.category = category;
+            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.add(new JLabel(this.category.toString()));
+            this.add(makeDeleteButton());
         }
         
         public Category getCategory()
         {
             return category;
         }
+    }
+    
+    private class ImageNode extends EditorNode implements HasDefaultButton
+    {
+        ItemImage image;
+        JToggleButton defaultButton;
+        
+        public ImageNode(ItemImage image)
+        {
+            this.image = image;
+            defaultButton = makeDefaultButton();
+            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.add(new JLabel(this.image.toString()));
+            this.add(defaultButton);
+            this.add(makeDeleteButton());
+        }
+
+        @Override
+        public void unsetDefault(Icon unsetIcon)
+        {
+            defaultButton.setSelected(false);
+            defaultButton.setIcon(unsetIcon);
+        }
+        
     }
 }
