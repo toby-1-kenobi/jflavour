@@ -9,10 +9,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -20,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -85,6 +89,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private void initComponents()
     {
 
+        imageChooser = new javax.swing.JFileChooser();
         txtItemLabel = new javax.swing.JTextField();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
@@ -108,227 +113,241 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         panelImagePreview = new javax.swing.JPanel();
         btnRevert = new javax.swing.JButton();
 
-        txtItemLabel.addActionListener(new java.awt.event.ActionListener()
+        imageChooser.setFileFilter(new FileNameExtensionFilter(
+            "Image files", ImageIO.getReaderFileSuffixes()));
+    imageChooser.setToolTipText(org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.imageChooser.toolTipText")); // NOI18N
+    imageChooser.setMultiSelectionEnabled(true);
+
+    txtItemLabel.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                txtItemLabelActionPerformed(evt);
-            }
-        });
+            txtItemLabelActionPerformed(evt);
+        }
+    });
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
-        btnCancel.addActionListener(new java.awt.event.ActionListener()
+    org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
+    btnCancel.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                btnCancelActionPerformed(evt);
-            }
-        });
+            btnCancelActionPerformed(evt);
+        }
+    });
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnApply, "Apply");
-        btnApply.addActionListener(new java.awt.event.ActionListener()
+    org.openide.awt.Mnemonics.setLocalizedText(btnApply, "Apply");
+    btnApply.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                applyToItem(evt);
-            }
-        });
+            applyToItem(evt);
+        }
+    });
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnOk, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnOk.text")); // NOI18N
+    org.openide.awt.Mnemonics.setLocalizedText(btnOk, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnOk.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(labelCategories, "Categories");
+    org.openide.awt.Mnemonics.setLocalizedText(labelCategories, "Categories");
 
-        txtCategories.addActionListener(new java.awt.event.ActionListener()
+    txtCategories.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                txtCategoriesActionPerformed(evt);
-            }
-        });
+            txtCategoriesActionPerformed(evt);
+        }
+    });
 
-        panelCategoriesList.setLayout(new javax.swing.BoxLayout(panelCategoriesList, javax.swing.BoxLayout.Y_AXIS));
-        jScrollPane4.setViewportView(panelCategoriesList);
+    panelCategoriesList.setLayout(new javax.swing.BoxLayout(panelCategoriesList, javax.swing.BoxLayout.Y_AXIS));
+    jScrollPane4.setViewportView(panelCategoriesList);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "use comma between");
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "use comma between");
 
-        javax.swing.GroupLayout panelCategoriesLayout = new javax.swing.GroupLayout(panelCategories);
-        panelCategories.setLayout(panelCategoriesLayout);
-        panelCategoriesLayout.setHorizontalGroup(
-            panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCategoriesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(labelCategories, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtCategories)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        panelCategoriesLayout.setVerticalGroup(
-            panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCategoriesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(labelCategories)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap())
-        );
+    javax.swing.GroupLayout panelCategoriesLayout = new javax.swing.GroupLayout(panelCategories);
+    panelCategories.setLayout(panelCategoriesLayout);
+    panelCategoriesLayout.setHorizontalGroup(
+        panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(panelCategoriesLayout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(labelCategories, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(txtCategories)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addContainerGap())
+    );
+    panelCategoriesLayout.setVerticalGroup(
+        panelCategoriesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(panelCategoriesLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(labelCategories)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(txtCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jLabel1)
+            .addContainerGap())
+    );
 
-        org.openide.awt.Mnemonics.setLocalizedText(labelImages, "Images");
+    org.openide.awt.Mnemonics.setLocalizedText(labelImages, "Images");
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnBrowseImages, "Browse...");
-        btnBrowseImages.addActionListener(new java.awt.event.ActionListener()
+    org.openide.awt.Mnemonics.setLocalizedText(btnBrowseImages, "Browse...");
+    btnBrowseImages.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                btnBrowseImagesActionPerformed(evt);
-            }
-        });
+            btnBrowseImagesActionPerformed(evt);
+        }
+    });
 
-        panelImagesList.setLayout(new javax.swing.BoxLayout(panelImagesList, javax.swing.BoxLayout.Y_AXIS));
-        jScrollPane5.setViewportView(panelImagesList);
+    panelImagesList.setLayout(new javax.swing.BoxLayout(panelImagesList, javax.swing.BoxLayout.Y_AXIS));
+    jScrollPane5.setViewportView(panelImagesList);
 
-        javax.swing.GroupLayout panelImagesLayout = new javax.swing.GroupLayout(panelImages);
-        panelImages.setLayout(panelImagesLayout);
-        panelImagesLayout.setHorizontalGroup(
-            panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelImagesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(labelImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnBrowseImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelImagesLayout.createSequentialGroup()
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        panelImagesLayout.setVerticalGroup(
-            panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelImagesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(labelImages)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnBrowseImages)
-                .addContainerGap())
-        );
+    javax.swing.GroupLayout panelImagesLayout = new javax.swing.GroupLayout(panelImages);
+    panelImages.setLayout(panelImagesLayout);
+    panelImagesLayout.setHorizontalGroup(
+        panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelImagesLayout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(labelImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnBrowseImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelImagesLayout.createSequentialGroup()
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+            .addContainerGap())
+    );
+    panelImagesLayout.setVerticalGroup(
+        panelImagesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(panelImagesLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(labelImages)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnBrowseImages)
+            .addContainerGap())
+    );
 
-        org.openide.awt.Mnemonics.setLocalizedText(labelAudio, "Audio");
+    org.openide.awt.Mnemonics.setLocalizedText(labelAudio, "Audio");
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnBrowseAudio, "Browse...");
+    org.openide.awt.Mnemonics.setLocalizedText(btnBrowseAudio, "Browse...");
 
-        panelAudioList.setLayout(new javax.swing.BoxLayout(panelAudioList, javax.swing.BoxLayout.Y_AXIS));
-        jScrollPane6.setViewportView(panelAudioList);
+    panelAudioList.setLayout(new javax.swing.BoxLayout(panelAudioList, javax.swing.BoxLayout.Y_AXIS));
+    jScrollPane6.setViewportView(panelAudioList);
 
-        javax.swing.GroupLayout panelAudioLayout = new javax.swing.GroupLayout(panelAudio);
-        panelAudio.setLayout(panelAudioLayout);
-        panelAudioLayout.setHorizontalGroup(
-            panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelAudioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane6)
-                    .addComponent(labelAudio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnBrowseAudio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        panelAudioLayout.setVerticalGroup(
-            panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelAudioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(labelAudio)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnBrowseAudio)
-                .addContainerGap())
-        );
+    javax.swing.GroupLayout panelAudioLayout = new javax.swing.GroupLayout(panelAudio);
+    panelAudio.setLayout(panelAudioLayout);
+    panelAudioLayout.setHorizontalGroup(
+        panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelAudioLayout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(jScrollPane6)
+                .addComponent(labelAudio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnBrowseAudio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addContainerGap())
+    );
+    panelAudioLayout.setVerticalGroup(
+        panelAudioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(panelAudioLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(labelAudio)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnBrowseAudio)
+            .addContainerGap())
+    );
 
-        javax.swing.GroupLayout panelImagePreviewLayout = new javax.swing.GroupLayout(panelImagePreview);
-        panelImagePreview.setLayout(panelImagePreviewLayout);
-        panelImagePreviewLayout.setHorizontalGroup(
-            panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 149, Short.MAX_VALUE)
-        );
-        panelImagePreviewLayout.setVerticalGroup(
-            panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
+    javax.swing.GroupLayout panelImagePreviewLayout = new javax.swing.GroupLayout(panelImagePreview);
+    panelImagePreview.setLayout(panelImagePreviewLayout);
+    panelImagePreviewLayout.setHorizontalGroup(
+        panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGap(0, 149, Short.MAX_VALUE)
+    );
+    panelImagePreviewLayout.setVerticalGroup(
+        panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGap(0, 100, Short.MAX_VALUE)
+    );
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnRevert, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnRevert.text_1")); // NOI18N
-        btnRevert.addActionListener(new java.awt.event.ActionListener()
+    org.openide.awt.Mnemonics.setLocalizedText(btnRevert, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnRevert.text_1")); // NOI18N
+    btnRevert.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
         {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                populateFromItem(evt);
-            }
-        });
+            populateFromItem(evt);
+        }
+    });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(panelImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                        .addComponent(panelAudio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnRevert)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(55, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelAudio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelImages, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelCategories, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+    this.setLayout(layout);
+    layout.setHorizontalGroup(
+        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(panelImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                    .addComponent(panelAudio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(btnRevert)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(btnCancel)
-                    .addComponent(btnApply)
-                    .addComponent(btnOk)
-                    .addComponent(btnRevert))
-                .addContainerGap())
-        );
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(btnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap(55, Short.MAX_VALUE))
+    );
+    layout.setVerticalGroup(
+        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(panelAudio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelImages, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelCategories, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(btnCancel)
+                .addComponent(btnApply)
+                .addComponent(btnOk)
+                .addComponent(btnRevert))
+            .addContainerGap())
+    );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed
     {//GEN-HEADEREND:event_btnCancelActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnBrowseImagesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseImagesActionPerformed
     {//GEN-HEADEREND:event_btnBrowseImagesActionPerformed
-        // TODO add your handling code here:
+        int dialogReturn = imageChooser.showOpenDialog(this);
+        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION)
+        {
+            File[] selected = imageChooser.getSelectedFiles();
+            for (int i = 0; i < selected.length; ++i) {  
+                panelImagesList.add(new ImageNode(new ItemImage(selected[i].toPath())));  
+                setFormDirty();
+            }
+            panelImagesList.revalidate();
+        }
     }//GEN-LAST:event_btnBrowseImagesActionPerformed
 
     private void txtItemLabelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtItemLabelActionPerformed
@@ -368,15 +387,28 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         
         // Apply the listed categories to the item
         // TODO?: get tree lock for panelCategoriesList
-        Component[] children = panelCategoriesList.getComponents();
-        List<Category> newCategories = new ArrayList<Category>(children.length);
-        for (Component component : children) {
+        Component[] categoriesChildren = panelCategoriesList.getComponents();
+        List<Category> newCategories = new ArrayList<Category>(categoriesChildren.length);
+        for (Component component : categoriesChildren) {
             if (component instanceof CategoryNode)
             {
                 newCategories.add(((CategoryNode)component).getCategory());
             }
         }
         item.setCategories(newCategories);
+        
+        // Apply the listed images to the item
+        Component[] imageChildren = panelImagesList.getComponents();
+        ItemImage defaultImage = null;
+        List<ItemImage> newImages = new ArrayList<ItemImage>(imageChildren.length);
+        for (Component component : imageChildren) {
+            if (component instanceof ImageNode)
+            {
+                newImages.add(((ImageNode)component).getImage());
+            }
+        }
+        
+        
         setFormClean();
     }//GEN-LAST:event_applyToItem
 
@@ -393,6 +425,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOk;
     private javax.swing.JButton btnRevert;
+    private javax.swing.JFileChooser imageChooser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
@@ -614,7 +647,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             this.image = image;
             defaultButton = makeDefaultButton();
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            this.add(new JLabel(this.image.toString()));
+            this.add(new JLabel(this.image.toShortString()));
             this.add(defaultButton);
             this.add(makeDeleteButton());
         }
@@ -624,6 +657,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         {
             defaultButton.setSelected(false);
             defaultButton.setIcon(unsetIcon);
+        }
+        
+        public ItemImage getImage()
+        {
+            return image;
         }
         
     }

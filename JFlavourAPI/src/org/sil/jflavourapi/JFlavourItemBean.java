@@ -26,7 +26,7 @@ public class JFlavourItemBean implements Serializable
     private String label;
     private List<Category> categories;
     private List<Path> audioFilePaths;
-    private List<Path> imageFilePaths;
+    private List<ItemImage> images;
     private boolean dirty;
     private PropertyChangeSupport propertySupport;
     
@@ -42,7 +42,7 @@ public class JFlavourItemBean implements Serializable
         label = "";
         categories = new ArrayList<Category>(5);
         audioFilePaths = new ArrayList<Path>(5);
-        imageFilePaths = new ArrayList<Path>(5);
+        images = new ArrayList<ItemImage>(5);
         dirty = false;
         propertySupport = new PropertyChangeSupport(this);
     }
@@ -61,7 +61,7 @@ public class JFlavourItemBean implements Serializable
         }
         Element images = domElement.getChild(XML_IMAGE);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.imageFilePaths.add(Paths.get(it.next().getText()));          
+            this.images.add(new ItemImage(Paths.get(it.next().getText())));          
         }
         
     }
@@ -158,30 +158,30 @@ public class JFlavourItemBean implements Serializable
     }
 
     /**
-     * @return the imageFilePaths
+     * @return the images
      */
-    public List<Path> getImageFilePaths()
+    public List<ItemImage> getImages()
     {
-        return imageFilePaths;
+        return images;
     }
     
-    public Path getImageFilePaths(int index)
+    public ItemImage getImages(int index)
     {
-        return imageFilePaths.get(index);
+        return images.get(index);
     }
 
     /**
-     * @param imageFilePaths the imageFilePaths to set
+     * @param images the images to set
      */
-    public void setImageFilePaths(List<Path> imageFilePaths)
+    public void setImages(List<ItemImage> images)
     {
-        this.imageFilePaths = imageFilePaths;
+        this.images = images;
         setDirty(true);
     }
     
-    public void setImageFilePaths(int index, Path path)
+    public void setImageFilePaths(int index, ItemImage image)
     {
-        imageFilePaths.set(index, path);
+        images.set(index, image);
         setDirty(true);
     }
 
@@ -228,7 +228,7 @@ public class JFlavourItemBean implements Serializable
         }
         itemElement.addContent(audioList);
         Element imageList = new Element(XML_CATEGORY);
-        for (Iterator<Path> it = imageFilePaths.iterator(); it.hasNext();) {
+        for (Iterator<ItemImage> it = images.iterator(); it.hasNext();) {
             imageList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(imageList);

@@ -58,6 +58,11 @@ public abstract class ItemMedia
     @Override
     public String toString()
     {
+        return mediaFile.toString();
+    }
+    
+    public String toShortString()
+    {
         return mediaFile.getFileName().toString();
     }
     
