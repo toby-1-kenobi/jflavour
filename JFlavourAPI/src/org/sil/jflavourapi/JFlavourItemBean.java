@@ -179,7 +179,7 @@ public class JFlavourItemBean implements Serializable
         setDirty(true);
     }
     
-    public void setImageFilePaths(int index, ItemImage image)
+    public void setImages(int index, ItemImage image)
     {
         images.set(index, image);
         setDirty(true);

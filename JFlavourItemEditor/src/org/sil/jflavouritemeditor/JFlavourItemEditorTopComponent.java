@@ -10,7 +10,6 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -342,10 +341,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION)
         {
             File[] selected = imageChooser.getSelectedFiles();
-            for (int i = 0; i < selected.length; ++i) {  
-                panelImagesList.add(new ImageNode(new ItemImage(selected[i].toPath())));  
+            ImageNode iNode = null;
+            for (int i = 0; i < selected.length; ++i) {
+                iNode = new ImageNode(new ItemImage(selected[i].toPath()));
+                panelImagesList.add(iNode);  
                 setFormDirty();
             }
+            if (!(iNode == null)) iNode.checkForDefault(panelImagesList);
             panelImagesList.revalidate();
         }
     }//GEN-LAST:event_btnBrowseImagesActionPerformed
@@ -407,7 +409,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                 newImages.add(((ImageNode)component).getImage());
             }
         }
-        
+        item.setImages(newImages);
         
         setFormClean();
     }//GEN-LAST:event_applyToItem
@@ -570,6 +572,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                     Container node = actionSource.getParent();
                     Container parent = node.getParent();
                     parent.remove(node);
+                    checkForDefault(parent);
                     parent.revalidate();
                     parent.repaint();
 		}
@@ -599,7 +602,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                             try {
                                 HasDefaultButton nodeD = (HasDefaultButton)allNodes[i];
                                 if (nodeD != node) {
-                                    nodeD.unsetDefault(blackTick);
+                                    nodeD.setDefault(false, blackTick);
                                 }
                             } catch (ClassCastException cce) {
                                 // somehow we've got a node that doesn't implement the HasDefaultButton interface
@@ -612,11 +615,37 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png")));
             return defaultBtn;
         }
+        
+        public void checkForDefault(Container nodeParent)
+        {
+            HasDefaultButton defaultNode = null;
+            Component[] allNodes = nodeParent.getComponents();
+            for (int i = allNodes.length - 1; i >=0 ; --i)
+            {
+                try {
+                    defaultNode = (HasDefaultButton)allNodes[i];
+                    if (defaultNode.isDefault()) {
+                        // one of the nodes is default, that's all we need
+                        // assume the other nodes aren't - it's handled by the behaviour of the default toggle button
+                        return;
+                    }
+                } catch (ClassCastException cce) {
+                    // we've got a node that doesn't implement the HasDefaultButton interface
+                    // so we'll just ignore this one
+                }
+            }
+            // if we reach here it means we haven't found a default node
+            // if the variable defaultNode is not null it means we found at least one node with a default button
+            // so make it default so one is default.
+            if (!(defaultNode == null)) defaultNode.setDefault(true, new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
+        }
     }
     
     private interface HasDefaultButton
     {
-        public void unsetDefault(Icon unsetIcon);
+        public boolean isDefault();
+        
+        public void setDefault(boolean defaultValue, Icon setIcon);
     }
     
     private class CategoryNode extends EditorNode
@@ -639,13 +668,15 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
     
     private class ImageNode extends EditorNode implements HasDefaultButton
     {
-        ItemImage image;
-        JToggleButton defaultButton;
+        private ItemImage image;
+        private JToggleButton defaultButton;
+        private boolean isDefault;
         
         public ImageNode(ItemImage image)
         {
             this.image = image;
             defaultButton = makeDefaultButton();
+            isDefault = false;
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             this.add(new JLabel(this.image.toShortString()));
             this.add(defaultButton);
@@ -653,10 +684,17 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         }
 
         @Override
-        public void unsetDefault(Icon unsetIcon)
+        public boolean isDefault()
         {
-            defaultButton.setSelected(false);
-            defaultButton.setIcon(unsetIcon);
+            return isDefault;
+        }
+
+        @Override
+        public void setDefault(boolean defaultValue, Icon setIcon)
+        {
+            defaultButton.setSelected(defaultValue);
+            if (!(setIcon == null)) defaultButton.setIcon(setIcon);
+            isDefault = defaultValue;
         }
         
         public ItemImage getImage()
