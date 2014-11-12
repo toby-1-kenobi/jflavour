@@ -9,6 +9,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -646,6 +648,10 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         public boolean isDefault();
         
         public void setDefault(boolean defaultValue, Icon setIcon);
+    
+        public void addDefaultChangeListener(PropertyChangeListener listener);
+
+        public void removeDefaultChangeListener(PropertyChangeListener listener);
     }
     
     private class CategoryNode extends EditorNode
@@ -671,6 +677,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         private ItemImage image;
         private JToggleButton defaultButton;
         private boolean isDefault;
+        private PropertyChangeSupport propertySupport;
         
         public ImageNode(ItemImage image)
         {
@@ -681,6 +688,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             this.add(new JLabel(this.image.toShortString()));
             this.add(defaultButton);
             this.add(makeDeleteButton());
+            propertySupport = new PropertyChangeSupport(this);
         }
 
         @Override
@@ -695,6 +703,19 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             defaultButton.setSelected(defaultValue);
             if (!(setIcon == null)) defaultButton.setIcon(setIcon);
             isDefault = defaultValue;
+            propertySupport.firePropertyChange("default", new Boolean(!defaultValue), new Boolean(defaultValue));
+        }
+    
+        @Override
+        public void addDefaultChangeListener(PropertyChangeListener listener)
+        {
+            propertySupport.addPropertyChangeListener(listener);
+        }
+
+        @Override
+        public void removeDefaultChangeListener(PropertyChangeListener listener)
+        {
+            propertySupport.removePropertyChangeListener(listener);
         }
         
         public ItemImage getImage()
