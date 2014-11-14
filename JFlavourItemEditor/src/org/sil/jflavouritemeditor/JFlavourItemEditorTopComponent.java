@@ -529,7 +529,17 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     @Override
     public void propertyChange(PropertyChangeEvent pce)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (pce.getPropertyName().equals("default"))
+        {
+            if ((Boolean)pce.getNewValue())
+            {
+                Object sourceNode = pce.getSource();
+                if (sourceNode instanceof ImageNode)
+                {
+                    imagePreview.setImage(((ImageNode)sourceNode).getImage().getImage());
+                }
+            }
+        }
     }
     
     private static class InterModuleEventHandler implements LookupListener
@@ -693,6 +703,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         
         public ImageNode(ItemImage image)
         {
+            propertySupport = new PropertyChangeSupport(this);
             this.image = image;
             defaultButton = makeDefaultButton();
             isDefault = false;
@@ -700,7 +711,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             this.add(new JLabel(this.image.toShortString()));
             this.add(defaultButton);
             this.add(makeDeleteButton());
-            propertySupport = new PropertyChangeSupport(this);
         }
 
         @Override
@@ -712,16 +722,22 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         @Override
         public void setDefault(boolean defaultValue, Icon setIcon)
         {
+            boolean oldValue = isDefault;
             defaultButton.setSelected(defaultValue);
             if (!(setIcon == null)) defaultButton.setIcon(setIcon);
             isDefault = defaultValue;
-            propertySupport.firePropertyChange("default", new Boolean(!defaultValue), new Boolean(defaultValue));
+            propertySupport.firePropertyChange("default", new Boolean(oldValue), new Boolean(defaultValue));
         }
     
         @Override
         public void addPropertyChangeListener(PropertyChangeListener listener)
         {
-            propertySupport.addPropertyChangeListener(listener);
+            // it seems like the JPanel constructor likes to call this method
+            // and that happens before propertySupport is initialised,
+            // so make sure that it's not null first.
+            if (propertySupport != null){
+                propertySupport.addPropertyChangeListener(listener);
+            }
         }
 
         @Override

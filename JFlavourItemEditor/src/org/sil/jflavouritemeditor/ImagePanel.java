@@ -23,6 +23,7 @@ public class ImagePanel extends JPanel
     public void setImage (BufferedImage newImage)
     {
         image = newImage;
+        invalidate();
         repaint();
     }
 
