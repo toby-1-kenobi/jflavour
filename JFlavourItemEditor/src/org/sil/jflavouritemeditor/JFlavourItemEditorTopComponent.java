@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -61,7 +62,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
     "CTL_JFlavourItemEditorTopComponent=JFlavourItemEditor Window",
     "HINT_JFlavourItemEditorTopComponent=This is a JFlavourItemEditor window"
 })
-public final class JFlavourItemEditorTopComponent extends TopComponent
+public final class JFlavourItemEditorTopComponent extends TopComponent implements PropertyChangeListener
 {
     
     public JFlavourItemEditorTopComponent()
@@ -346,6 +347,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             ImageNode iNode = null;
             for (int i = 0; i < selected.length; ++i) {
                 iNode = new ImageNode(new ItemImage(selected[i].toPath()));
+                iNode.addPropertyChangeListener(this);
                 panelImagesList.add(iNode);  
                 setFormDirty();
             }
@@ -523,6 +525,12 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         btnApply.setEnabled(false);
         btnCancel.setEnabled(false);
     }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent pce)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     private static class InterModuleEventHandler implements LookupListener
     {
@@ -570,13 +578,8 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
                 @Override
 		public void actionPerformed(ActionEvent e) {
                     Component actionSource = (Component)(e.getSource());
-                    // remove the CategoryNode from its parent
-                    Container node = actionSource.getParent();
-                    Container parent = node.getParent();
-                    parent.remove(node);
-                    checkForDefault(parent);
-                    parent.revalidate();
-                    parent.repaint();
+                    // remove the node from its parent
+                    ((EditorNode)(actionSource.getParent())).removeSelf();
 		}
             });
             deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
@@ -618,6 +621,15 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
             return defaultBtn;
         }
         
+        protected void removeSelf()
+        {
+            Container parent = getParent();
+            parent.remove(this);
+            checkForDefault(parent);
+            parent.revalidate();
+            parent.repaint();
+        }
+        
         public void checkForDefault(Container nodeParent)
         {
             HasDefaultButton defaultNode = null;
@@ -649,9 +661,9 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         
         public void setDefault(boolean defaultValue, Icon setIcon);
     
-        public void addDefaultChangeListener(PropertyChangeListener listener);
+        public void addPropertyChangeListener(PropertyChangeListener listener);
 
-        public void removeDefaultChangeListener(PropertyChangeListener listener);
+        public void removePropertyChangeListener(PropertyChangeListener listener);
     }
     
     private class CategoryNode extends EditorNode
@@ -707,15 +719,26 @@ public final class JFlavourItemEditorTopComponent extends TopComponent
         }
     
         @Override
-        public void addDefaultChangeListener(PropertyChangeListener listener)
+        public void addPropertyChangeListener(PropertyChangeListener listener)
         {
             propertySupport.addPropertyChangeListener(listener);
         }
 
         @Override
-        public void removeDefaultChangeListener(PropertyChangeListener listener)
+        public void removePropertyChangeListener(PropertyChangeListener listener)
         {
             propertySupport.removePropertyChangeListener(listener);
+        }
+        
+        @Override
+        protected void removeSelf()
+        {
+            // first remove all listeners
+            PropertyChangeListener[] allListeners = propertySupport.getPropertyChangeListeners();
+            for (PropertyChangeListener listener : allListeners) {
+                propertySupport.removePropertyChangeListener(listener);
+            }
+            super.removeSelf();
         }
         
         public ItemImage getImage()
