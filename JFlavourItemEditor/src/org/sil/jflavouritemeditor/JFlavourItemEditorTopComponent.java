@@ -74,9 +74,9 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     public JFlavourItemEditorTopComponent(JFlavourItemBean item)
     {
         initComponents();
-        imagePreview = new ImagePanel();
-        panelImagePreview.setLayout(new BoxLayout(panelImagePreview, BoxLayout.X_AXIS));
-        panelImagePreview.add(imagePreview);
+        //imagePreview = new ImagePanel();
+        //panelImagePreview.setLayout(new BoxLayout(panelImagePreview, BoxLayout.X_AXIS));
+        //panelImagePreview.add(imagePreview);
         setName(Bundle.CTL_JFlavourItemEditorTopComponent());
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
@@ -114,7 +114,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         btnBrowseAudio = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
         panelAudioList = new javax.swing.JPanel();
-        panelImagePreview = new javax.swing.JPanel();
+        panelImagePreview = new ImagePanel();
         btnRevert = new javax.swing.JButton();
 
         imageChooser.setFileFilter(new FileNameExtensionFilter(
@@ -184,7 +184,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             .addContainerGap()
             .addComponent(labelCategories)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(txtCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -261,15 +261,17 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             .addContainerGap())
     );
 
+    panelImagePreview.setMinimumSize(new java.awt.Dimension(205, 128));
+
     javax.swing.GroupLayout panelImagePreviewLayout = new javax.swing.GroupLayout(panelImagePreview);
     panelImagePreview.setLayout(panelImagePreviewLayout);
     panelImagePreviewLayout.setHorizontalGroup(
         panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGap(0, 149, Short.MAX_VALUE)
+        .addGap(0, 205, Short.MAX_VALUE)
     );
     panelImagePreviewLayout.setVerticalGroup(
         panelImagePreviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGap(0, 100, Short.MAX_VALUE)
+        .addGap(0, 128, Short.MAX_VALUE)
     );
 
     org.openide.awt.Mnemonics.setLocalizedText(btnRevert, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnRevert.text_1")); // NOI18N
@@ -300,14 +302,14 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(layout.createSequentialGroup()
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
-                            .addComponent(txtItemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(panelCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(panelImages, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(panelImagePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(panelImages, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(panelAudio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())))
@@ -450,7 +452,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     private javax.swing.JTextField txtCategories;
     private javax.swing.JTextField txtItemLabel;
     // End of variables declaration//GEN-END:variables
-    private ImagePanel imagePreview;
+    //private ImagePanel imagePreview;
     
     private JFlavourItemBean item;
     
@@ -540,9 +542,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
                     ItemImage image = ((ImageNode)sourceNode).getImage();
                     try {
                         image.load();
-                        imagePreview.setImage(image.getBufferedImage());
+                        ((ImagePanel)panelImagePreview).setImage(image.getBufferedImage());
                     } catch (IOException e) {
                         // could not load the image
+                        // set image preview to nothing
+                        ((ImagePanel)panelImagePreview).setImage(null);
                         //TODO: replace default toggle button with an error icon
                         //TODO: set ItemImage object to be in error state
                     }
@@ -589,7 +593,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     }
     
     private abstract class EditorNode extends JPanel
-    {
+    {        
         protected JButton makeDeleteButton()
         {
             JButton deleteBtn = new JButton();
