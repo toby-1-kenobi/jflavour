@@ -39,7 +39,7 @@ public class ItemImage extends ItemMedia
         image = null;
     }
     
-    public BufferedImage getImage()
+    public BufferedImage getBufferedImage()
     {
         return image;
     }

@@ -6,6 +6,7 @@
 
 package org.sil.jflavouritemeditor;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -23,14 +24,25 @@ public class ImagePanel extends JPanel
     public void setImage (BufferedImage newImage)
     {
         image = newImage;
-        invalidate();
+        if (image != null)
+        {
+            this.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
+            this.setMinimumSize(new Dimension(64, 64));
+            setVisible(true);
+            //this.getGraphics().drawImage(image, 0, 0, null);
+            //revalidate();
+        }
+        else
+        {
+            setVisible(false);
+        }
         repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (!(image == null))
+        if (image != null)
         {
             g.drawImage(image, 0, 0, null);
         }
