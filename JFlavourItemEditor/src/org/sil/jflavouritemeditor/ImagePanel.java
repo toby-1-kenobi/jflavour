@@ -20,28 +20,13 @@ public class ImagePanel extends JPanel
 {
 
     private BufferedImage image = null;
-    // the bounding box for the image
-    private final int WIDTH = 205;
-    private final int HEIGHT = 128;
-    // the size of the image after it is scald to fit the bounding box
-    private int sWidth = 205;
-    private int sHeight = 128;
     
     public void setImage (BufferedImage newImage)
     {
         image = newImage;
         if (image != null)
         {
-            float xFactor = image.getWidth() / (float)WIDTH;
-            float yFactor = image.getHeight() / (float)HEIGHT;
-            float factor = Math.max(xFactor, yFactor);
-            sWidth = Math.round(image.getWidth() / factor);
-            sHeight = Math.round(image.getHeight() / factor);
-            
-            this.setMinimumSize(new Dimension(WIDTH, HEIGHT));
             setVisible(true);
-            //this.getGraphics().drawImage(image, 0, 0, null);
-            //revalidate();
         }
         else
         {
@@ -55,7 +40,21 @@ public class ImagePanel extends JPanel
         super.paintComponent(g);
         if (image != null)
         {
-            g.drawImage(image, 0, 0, sWidth, sHeight, 0, 0, image.getWidth(), image.getHeight(), null);
+            Dimension boundingBox = this.getPreferredSize();
+            // scale the image to fit in the panel
+            double scaleFactor = Math.max(image.getWidth() / boundingBox.getWidth(), image.getHeight() / boundingBox.getHeight());
+            g.drawImage(
+                    image,
+                    0,
+                    0,
+                    (int) Math.round(image.getWidth() / scaleFactor),
+                    (int) Math.round(image.getHeight() / scaleFactor),
+                    0,
+                    0,
+                    image.getWidth(),
+                    image.getHeight(),
+                    null
+            );
         }
     }
 

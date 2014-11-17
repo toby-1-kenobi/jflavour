@@ -296,11 +296,6 @@
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="panelImagePreview">
-      <Properties>
-        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[205, 128]"/>
-        </Property>
-      </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ImagePanel()"/>
       </AuxValues>

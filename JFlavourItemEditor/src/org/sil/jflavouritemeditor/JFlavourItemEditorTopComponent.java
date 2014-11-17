@@ -261,8 +261,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             .addContainerGap())
     );
 
-    panelImagePreview.setMinimumSize(new java.awt.Dimension(205, 128));
-
     javax.swing.GroupLayout panelImagePreviewLayout = new javax.swing.GroupLayout(panelImagePreview);
     panelImagePreview.setLayout(panelImagePreviewLayout);
     panelImagePreviewLayout.setHorizontalGroup(
