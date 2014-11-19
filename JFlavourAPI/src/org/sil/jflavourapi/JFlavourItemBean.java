@@ -25,8 +25,10 @@ public class JFlavourItemBean implements Serializable
     public static final String PROP_DIRTY = "dirty";
     private String label;
     private List<Category> categories;
-    private List<Path> audioFilePaths;
+    private List<Path> audio;
+    private int defaultAudioIndex;
     private List<ItemImage> images;
+    private int defaultImageIndex;
     private boolean dirty;
     private PropertyChangeSupport propertySupport;
     
@@ -36,12 +38,13 @@ public class JFlavourItemBean implements Serializable
     private final String XML_AUDIO = "itemAudio";
     private final String XML_IMAGE = "itemImage";
     private final String XML_PATH = "path";
+    private final String XML_DEFAULT_ATTR = "default";
     
     public JFlavourItemBean()
     {
         label = "";
         categories = new ArrayList<Category>(5);
-        audioFilePaths = new ArrayList<Path>(5);
+        audio = new ArrayList<Path>(5);
         images = new ArrayList<ItemImage>(5);
         dirty = false;
         propertySupport = new PropertyChangeSupport(this);
@@ -57,11 +60,17 @@ public class JFlavourItemBean implements Serializable
         }
         Element audio = domElement.getChild(XML_AUDIO);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.audioFilePaths.add(Paths.get(it.next().getText()));          
+            this.audio.add(Paths.get(it.next().getText()));          
         }
         Element images = domElement.getChild(XML_IMAGE);
         for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.images.add(new ItemImage(Paths.get(it.next().getText())));          
+            Element next = it.next();
+            ItemImage newImage = new ItemImage(Paths.get(next.getText()));
+            this.images.add(newImage);  
+            if (Boolean.parseBoolean(next.getAttributeValue(XML_DEFAULT_ATTR)))
+            {
+                setDefaultImage(newImage);
+            }
         }
         
     }
@@ -130,30 +139,30 @@ public class JFlavourItemBean implements Serializable
     }
 
     /**
-     * @return the audioFilePaths
+     * @return the audio
      */
     public List<Path> getAudioFilePaths()
     {
-        return audioFilePaths;
+        return audio;
     }
     
     public Path getAudioFilePaths(int index)
     {
-        return audioFilePaths.get(index);
+        return audio.get(index);
     }
 
     /**
-     * @param audioFilePaths the audioFilePaths to set
+     * @param audioFilePaths the audio to set
      */
     public void setAudioFilePaths(List<Path> audioFilePaths)
     {
-        this.audioFilePaths = audioFilePaths;
+        this.audio = audioFilePaths;
         setDirty(true);
     }
     
     public void setAudioFilePaths(int index, Path path)
     {
-        audioFilePaths.set(index, path);
+        audio.set(index, path);
         setDirty(true);
     }
 
@@ -183,6 +192,16 @@ public class JFlavourItemBean implements Serializable
     {
         images.set(index, image);
         setDirty(true);
+    }
+    
+    public void setDefaultImage(ItemImage defaultImage)
+    {
+        defaultImageIndex = images.indexOf(defaultImage);
+    }
+    
+    public ItemImage getDefaultImage()
+    {
+        return images.get(defaultImageIndex);
     }
 
     /**
@@ -222,16 +241,20 @@ public class JFlavourItemBean implements Serializable
             categoryList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(categoryList);
+        
         Element audioList = new Element(XML_CATEGORY);
-        for (Iterator<Path> it = audioFilePaths.iterator(); it.hasNext();) {
+        for (Iterator<Path> it = audio.iterator(); it.hasNext();) {
             audioList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(audioList);
+        
         Element imageList = new Element(XML_CATEGORY);
         for (Iterator<ItemImage> it = images.iterator(); it.hasNext();) {
-            imageList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
+            ItemImage next = it.next();
+            imageList.addContent(new Element(XML_PATH).addContent(next.toString()).setAttribute(XML_DEFAULT_ATTR, Boolean.toString(next == getDefaultImage())));
         }
         itemElement.addContent(imageList);
+        
         return itemElement;
     }
 }

@@ -119,14 +119,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     imageChooser.setToolTipText(org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.imageChooser.toolTipText")); // NOI18N
     imageChooser.setMultiSelectionEnabled(true);
 
-    txtItemLabel.addActionListener(new java.awt.event.ActionListener()
-    {
-        public void actionPerformed(java.awt.event.ActionEvent evt)
-        {
-            txtItemLabelActionPerformed(evt);
-        }
-    });
-
     org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
     btnCancel.addActionListener(new java.awt.event.ActionListener()
     {
@@ -146,6 +138,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     });
 
     org.openide.awt.Mnemonics.setLocalizedText(btnOk, org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.btnOk.text")); // NOI18N
+    btnOk.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
+        {
+            btnOkActionPerformed(evt);
+        }
+    });
 
     org.openide.awt.Mnemonics.setLocalizedText(labelCategories, "Categories");
 
@@ -333,7 +332,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed
     {//GEN-HEADEREND:event_btnCancelActionPerformed
-        
+        this.close();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnBrowseImagesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseImagesActionPerformed
@@ -353,11 +352,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             panelImagesList.revalidate();
         }
     }//GEN-LAST:event_btnBrowseImagesActionPerformed
-
-    private void txtItemLabelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtItemLabelActionPerformed
-    {//GEN-HEADEREND:event_txtItemLabelActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtItemLabelActionPerformed
 
     private void txtCategoriesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_txtCategoriesActionPerformed
     {//GEN-HEADEREND:event_txtCategoriesActionPerformed
@@ -393,6 +387,12 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     {//GEN-HEADEREND:event_populateFromItem
         populateFromItem();
     }//GEN-LAST:event_populateFromItem
+
+    private void btnOkActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnOkActionPerformed
+    {//GEN-HEADEREND:event_btnOkActionPerformed
+        updateItemFromForm();
+        this.close();
+    }//GEN-LAST:event_btnOkActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -486,7 +486,8 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         
         panelImagesList.removeAll();
         for (Iterator<ItemImage> it = item.getImages().iterator(); it.hasNext();) {
-            panelImagesList.add(new ImageNode(it.next()));
+            ItemImage next = it.next();
+            panelImagesList.add(new ImageNode(next, item.getDefaultImage() == next));
         }
         panelImagesList.revalidate();
         
@@ -520,10 +521,18 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         for (Component component : imageChildren) {
             if (component instanceof ImageNode)
             {
-                newImages.add(((ImageNode)component).getImage());
+                ItemImage image = ((ImageNode)component).getImage();
+                newImages.add(image);
+                if (((HasDefaultButton)component).isDefault())
+                {
+                    defaultImage = image;
+                }
             }
         }
         item.setImages(newImages);
+        if (defaultImage != null) {
+            item.setDefaultImage(defaultImage);
+        }
         
         setFormClean();
     }
@@ -622,6 +631,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         
         protected JToggleButton makeDefaultButton()
         {
+            return makeDefaultButton(false);
+        }
+        
+        protected JToggleButton makeDefaultButton(boolean isSelected)
+        {
             JToggleButton defaultBtn = new JToggleButton();
             defaultBtn.addActionListener(new ActionListener() {
                 @Override
@@ -652,7 +666,12 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
                     }
 		}
             });
-            defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png")));
+            if (isSelected) {
+                defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/colour_black.png")));
+            } else {
+                defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png")));
+            }
+            defaultBtn.setSelected(isSelected);
             return defaultBtn;
         }
         
@@ -728,9 +747,14 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         
         public ImageNode(ItemImage image)
         {
+            this(image, false);
+        }
+        
+        public ImageNode(ItemImage image, boolean defaultSelected)
+        {
             propertySupport = new PropertyChangeSupport(this);
             this.image = image;
-            defaultButton = makeDefaultButton();
+            defaultButton = makeDefaultButton(defaultSelected);
             isDefault = false;
             this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             this.add(new JLabel(this.image.toShortString()));
