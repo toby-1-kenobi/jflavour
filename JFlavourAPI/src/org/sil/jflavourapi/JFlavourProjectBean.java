@@ -4,6 +4,7 @@
  */
 package org.sil.jflavourapi;
 
+import java.awt.event.ActionListener;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.swing.Timer;
 import java.util.TreeSet;
 import java.util.UUID;
 import org.jdom2.*;
@@ -29,6 +31,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     private List<JFlavourItemBean> items;
     private boolean dirty;
     private PropertyChangeSupport propertySupport;
+    private Timer saveTimer;
     
     private final String XML_PROJECT = "jFlavourProject";
     private final String XML_PROJECT_NAME = "projectName";
@@ -50,6 +53,10 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         items = new ArrayList<JFlavourItemBean>(100);
         dirty = false;
         propertySupport = new PropertyChangeSupport(this);
+        // set the timer to be for 5 seconds without repreating
+        saveTimer = new Timer(5000, null);
+        saveTimer.setRepeats(false);
+        saveTimer.setActionCommand(id.toString());
     }
     
     /**
@@ -111,6 +118,16 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         propertySupport.removePropertyChangeListener(listener);
+    }
+    
+    public void addActionListener(ActionListener listener)
+    {
+        saveTimer.addActionListener(listener);
+    }
+    
+    public void removeActionListener(ActionListener listener)
+    {
+        saveTimer.removeActionListener(listener);
     }
 
     /**
@@ -225,6 +242,9 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         // if any of them become dirty, the project is dirty.
         if (pce.getPropertyName().equals(JFlavourItemBean.PROP_DIRTY) && ((Boolean)pce.getNewValue()).booleanValue()) {
             setDirty(true);
+            if (!saveTimer.isRunning()) {
+                saveTimer.start();
+            }
         }
     }
 }

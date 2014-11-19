@@ -58,6 +58,30 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
         projectCache.put(project.getId(), project);
     }
     
+    public static JFlavourProjectBean getProject(UUID id)
+    {
+        if (projectCache.containsKey(id))
+        {
+            return projectCache.get(id);
+        }
+        else
+        {
+            try {
+                return loadProject(id);
+            } catch (IOException ex) {
+                System.err.format("Loading project - IOException: %s%n", ex);
+                return null;
+            } catch (JDOMException ex) {
+                System.err.format("Loading project - JDOMException: %s%n", ex);
+                return null;
+            }
+        }
+    }
+    
+    /**
+     * Write a file that lists the IDs and names of available projects.
+     * The content of the projects are not saved in this file
+     */
     public static void writeCache()
     {
         Element root = new Element(XML_PROJECT_LIST);
@@ -91,31 +115,73 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
                 for (Iterator<Element> it = allProjects.iterator(); it.hasNext();) {
                     Element projectNode = it.next();
                     UUID id = UUID.fromString(projectNode.getChild(XML_PROJECT_ID).getText());
-                    String name = projectNode.getChild(XML_PROJECT_NAME).getText();
-                    Path projectPath = dataDirectory.resolve(id.toString() + '.' + PROJECT_FILE_EXT);
                     if (projectCache.containsKey(id)) {
+                        // if we already have this project loaded get it from the cache
                         list.add(projectCache.get(id));
                     }
-                    else if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath)) {
-                        Document projectDoc = builder.build(projectPath.toFile());
-                        Element projectRoot = projectDoc.getContent(new ElementFilter()).get(0);
-                        JFlavourProjectBean project = new JFlavourProjectBean(projectRoot);
+                    // otherwise read it from the file
+                    else {
+                        JFlavourProjectBean project = loadProject(id);
                         projectCache.put(id, project);
                         list.add(project);
                     }
-                    else {
-                        throw new IOException("could not read JFlavour project " + name + " from " + projectPath);
-                    }
                 }
             } catch(JDOMException x) {
-                System.err.format("Load project IDs JDOMException: %s%n", x);
+                System.err.format("Loading project or project IDs - JDOMException: %s%n", x);
             } catch(NullPointerException x) {
-                System.err.format("Load project IDs NullPointerException: %s%n", x);
+                System.err.format("Loading project IDs - NullPointerException: %s%n", x);
             } catch(IOException x) {
-                System.err.format("Load project IDs IOException: %s%n", x);
+                System.err.format("Loading project or project IDs - IOException: %s%n", x);
             }
         }
         return true;
+    }
+    
+    private static JFlavourProjectBean loadProject(UUID id) throws IOException, JDOMException
+    {
+        // the content of the project is stored in a file named by the project id
+        Path projectPath = dataDirectory.resolve(id.toString() + '.' + PROJECT_FILE_EXT);
+        if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath))
+        {
+            SAXBuilder builder = new SAXBuilder();
+            Document projectDoc = builder.build(projectPath.toFile());
+            Element projectRoot = projectDoc.getContent(new ElementFilter()).get(0);
+            JFlavourProjectBean project = new JFlavourProjectBean(projectRoot);
+            return project;
+        }
+        else
+        {
+            throw new IOException("could not read JFlavour project from " + projectPath);
+        }
+    }
+    
+    public static boolean saveProject(JFlavourProjectBean project)
+    {
+        Document projectDoc = new Document(project.toDomElement());
+        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
+        Path projectPath = JFlavourPathManager.getDataDirectory().resolve(project.getId().toString() + '.' + ProjectNodeFactory.PROJECT_FILE_EXT);
+        try {
+            BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
+            xout.output(projectDoc, writer);
+            project.setDirty(false);
+        } catch (IOException x) {
+            System.err.format(" Save project IOException: %s%n", x);
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean saveProject(UUID projectID)
+    {
+        if (projectCache.containsKey(projectID))
+        {
+            return saveProject(projectCache.get(projectID));
+        }
+        else
+        {
+            System.err.print("attempting to save project not loaded: " + projectID.toString());
+            return false;
+        }
     }
     
     @Override

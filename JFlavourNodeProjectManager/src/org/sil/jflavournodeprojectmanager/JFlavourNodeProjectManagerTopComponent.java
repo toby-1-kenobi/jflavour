@@ -8,21 +8,10 @@ package org.sil.jflavournodeprojectmanager;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
-import org.jdom2.Document;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -35,7 +24,6 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.sil.jflavourapi.JFlavourPathManager;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -62,13 +50,11 @@ import org.sil.jflavourapi.JFlavourProjectBean;
     "CTL_JFlavourNodeProjectManagerTopComponent=JFlavourNodeProjectManager Window",
     "HINT_JFlavourNodeProjectManagerTopComponent=This is a JFlavourNodeProjectManager window"
 })
-public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider, ActionListener, PropertyChangeListener
+public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider, ActionListener
 {
     
     private JButton btnNewProject;
     private ProjectNode root;
-    
-    private List<Timer> saveTimers;
     
     public JFlavourNodeProjectManagerTopComponent()
     {
@@ -78,8 +64,6 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
 
         setLayout(new BorderLayout());
         add(new BeanTreeView(), BorderLayout.CENTER);
-        
-        saveTimers = new ArrayList<Timer>();
         
         btnNewProject = new JButton("New Project");
         btnNewProject.addActionListener(new ActionListener() {
@@ -134,24 +118,11 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         String name = JOptionPane.showInputDialog(this, "What is the project's name?", "New Project Name", JOptionPane.QUESTION_MESSAGE);
         JFlavourProjectBean project = new JFlavourProjectBean();
         project.setName(name);
+        project.addActionListener(this);
         ProjectNodeFactory.addToCache(project);
-        saveProject(project);
+        ProjectNodeFactory.saveProject(project);
         ProjectNodeFactory.writeCache();
         root.refresh();
-    }
-    
-    private void saveProject(JFlavourProjectBean project)
-    {
-        Document projectDoc = new Document(project.toDomElement());
-        XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
-        Path projectPath = JFlavourPathManager.getDataDirectory().resolve(project.getId().toString() + '.' + ProjectNodeFactory.PROJECT_FILE_EXT);
-        try {
-            BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
-            xout.output(projectDoc, writer);
-            project.setDirty(false);
-        } catch (IOException x) {
-            System.err.format(" Save project IOException: %s%n", x);
-        }
     }
     
     @Override
@@ -191,12 +162,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
     @Override
     public void actionPerformed(ActionEvent ae)
     {
-        Object endingTimer = ae.getSource();
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent pce)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String projectId = ae.getActionCommand();
+        ProjectNodeFactory.saveProject(UUID.fromString(projectId));
     }
 }
