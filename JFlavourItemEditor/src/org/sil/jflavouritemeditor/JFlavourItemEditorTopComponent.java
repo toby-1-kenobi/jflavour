@@ -74,9 +74,6 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     public JFlavourItemEditorTopComponent(JFlavourItemBean item)
     {
         initComponents();
-        //imagePreview = new ImagePanel();
-        //panelImagePreview.setLayout(new BoxLayout(panelImagePreview, BoxLayout.X_AXIS));
-        //panelImagePreview.add(imagePreview);
         setName(Bundle.CTL_JFlavourItemEditorTopComponent());
         setToolTipText(Bundle.HINT_JFlavourItemEditorTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
@@ -389,34 +386,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
 
     private void applyToItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_applyToItem
     {//GEN-HEADEREND:event_applyToItem
-        // Apply the label to the item
-        item.setLabel(txtItemLabel.getText());
-        
-        // Apply the listed categories to the item
-        // TODO?: get tree lock for panelCategoriesList
-        Component[] categoriesChildren = panelCategoriesList.getComponents();
-        List<Category> newCategories = new ArrayList<Category>(categoriesChildren.length);
-        for (Component component : categoriesChildren) {
-            if (component instanceof CategoryNode)
-            {
-                newCategories.add(((CategoryNode)component).getCategory());
-            }
-        }
-        item.setCategories(newCategories);
-        
-        // Apply the listed images to the item
-        Component[] imageChildren = panelImagesList.getComponents();
-        ItemImage defaultImage = null;
-        List<ItemImage> newImages = new ArrayList<ItemImage>(imageChildren.length);
-        for (Component component : imageChildren) {
-            if (component instanceof ImageNode)
-            {
-                newImages.add(((ImageNode)component).getImage());
-            }
-        }
-        item.setImages(newImages);
-        
-        setFormClean();
+        updateItemFromForm();
     }//GEN-LAST:event_applyToItem
 
     private void populateFromItem(java.awt.event.ActionEvent evt)//GEN-FIRST:event_populateFromItem
@@ -507,11 +477,54 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     private void populateFromItem()
     {
         txtItemLabel.setText(item.getLabel());
+        
         panelCategoriesList.removeAll();
         for (Iterator<Category> it = item.getCategories().iterator(); it.hasNext();) {
             panelCategoriesList.add(new CategoryNode(it.next()));
         }
         panelCategoriesList.revalidate();
+        
+        panelImagesList.removeAll();
+        for (Iterator<ItemImage> it = item.getImages().iterator(); it.hasNext();) {
+            panelImagesList.add(new ImageNode(it.next()));
+        }
+        panelImagesList.revalidate();
+        
+        panelAudioList.removeAll();
+        panelAudioList.revalidate();
+        
+        setFormClean();
+    }
+    
+    private void updateItemFromForm()
+    {
+        // Apply the label to the item
+        item.setLabel(txtItemLabel.getText());
+        
+        // Apply the listed categories to the item
+        // TODO?: get tree lock for panelCategoriesList
+        Component[] categoriesChildren = panelCategoriesList.getComponents();
+        List<Category> newCategories = new ArrayList<Category>(categoriesChildren.length);
+        for (Component component : categoriesChildren) {
+            if (component instanceof CategoryNode)
+            {
+                newCategories.add(((CategoryNode)component).getCategory());
+            }
+        }
+        item.setCategories(newCategories);
+        
+        // Apply the listed images to the item
+        Component[] imageChildren = panelImagesList.getComponents();
+        ItemImage defaultImage = null;
+        List<ItemImage> newImages = new ArrayList<ItemImage>(imageChildren.length);
+        for (Component component : imageChildren) {
+            if (component instanceof ImageNode)
+            {
+                newImages.add(((ImageNode)component).getImage());
+            }
+        }
+        item.setImages(newImages);
+        
         setFormClean();
     }
     
