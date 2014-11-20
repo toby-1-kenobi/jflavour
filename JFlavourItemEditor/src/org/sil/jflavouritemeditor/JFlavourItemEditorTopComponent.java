@@ -30,6 +30,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.windows.TopComponent;
@@ -40,6 +41,7 @@ import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
 import org.sil.jflavourapi.ItemImage;
 import org.sil.jflavourapi.JFlavourItemBean;
+import org.sil.jflavourapi.JFlavourPathManager;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -522,6 +524,12 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             if (component instanceof ImageNode)
             {
                 ItemImage image = ((ImageNode)component).getImage();
+                try {
+                    image.importMedia(JFlavourPathManager.getImagesDirectory());
+                } catch (IOException ex) {
+                    // could not import a copy of the image to JFlavour directory.
+                    Exceptions.printStackTrace(ex);
+                }
                 newImages.add(image);
                 if (((HasDefaultButton)component).isDefault())
                 {

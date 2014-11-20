@@ -20,10 +20,12 @@ public abstract class ItemMedia
 {
     
     protected Path mediaFile;
+    protected boolean imported;
 
     public ItemMedia(Path mediaFile)
     {
         this.mediaFile = mediaFile;
+        imported = false;
     }
     
     /**
@@ -32,16 +34,26 @@ public abstract class ItemMedia
      */
     public void importMedia(Path targetDir) throws IOException
     {
-        Path mediaFileName = mediaFile.getFileName();
-        Path targetPath = JFlavourPathManager.getAvailablePath(targetDir, mediaFileName);
-        
-        //overwrite existing file, if exists
-        CopyOption[] options = new CopyOption[]{
-          StandardCopyOption.REPLACE_EXISTING,
-          StandardCopyOption.COPY_ATTRIBUTES
-        }; 
-        Files.copy(mediaFile, targetPath, options);
-        mediaFile = targetPath;
+        // don't import if the media is already in the target directory
+        if (targetDir.compareTo(mediaFile.getParent()) != 0)
+        {
+            Path mediaFileName = mediaFile.getFileName();
+            Path targetPath = JFlavourPathManager.getAvailablePath(targetDir, mediaFileName);
+
+            //overwrite existing file, if exists
+            CopyOption[] options = new CopyOption[]{
+              StandardCopyOption.REPLACE_EXISTING,
+              StandardCopyOption.COPY_ATTRIBUTES
+            }; 
+            Files.copy(mediaFile, targetPath, options);
+            
+            // for the strange case that the image file was already imported, but to a different directory
+            // we now call the dispose method to remove the old image and leave the copy we just made.
+            dispose();
+            
+            mediaFile = targetPath;
+            imported = true;
+        }
     }
     
     /**
@@ -54,6 +66,14 @@ public abstract class ItemMedia
      * unload the media from memory. If it is not loaded do nothing.
      */
     public abstract void unload();
+    
+    public void dispose() throws IOException
+    {
+        if (imported)
+        {
+            Files.deleteIfExists(mediaFile);
+        }
+    }
     
     @Override
     public String toString()

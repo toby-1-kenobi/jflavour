@@ -5,12 +5,15 @@
 package org.sil.jflavourapi;
 
 import java.beans.*;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
 
@@ -185,12 +188,26 @@ public class JFlavourItemBean implements Serializable
      */
     public void setImages(List<ItemImage> images)
     {
+        for (ItemImage image : this.images) {
+            try {
+                image.dispose();
+            } catch (IOException ex) {
+                // could not delete the file associated with the old image object
+                //TODO: warn the user that there is clutter happening
+            }
+        }
         this.images = images;
         setDirty(true);
     }
     
     public void setImages(int index, ItemImage image)
     {
+        try {
+            images.get(index).dispose();
+        } catch (IOException ex) {
+            // could not delete the file associated with the old image object
+            //TODO: warn the user that there is clutter happening
+        }
         images.set(index, image);
         setDirty(true);
     }
@@ -198,6 +215,7 @@ public class JFlavourItemBean implements Serializable
     public void setDefaultImage(ItemImage defaultImage)
     {
         defaultImageIndex = images.indexOf(defaultImage);
+        setDirty(true);
     }
     
     public ItemImage getDefaultImage()
