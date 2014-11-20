@@ -33,10 +33,11 @@ public class JFlavourItemBean implements Serializable
     private PropertyChangeSupport propertySupport;
     
     private final String XML_ITEM = "jFlavourItem";
-    private final String XML_LABEL = "itemLabel";
+    private final String XML_ITEM_LABEL = "itemLabel";
     private final String XML_CATEGORY = "itemCategory";
     private final String XML_AUDIO = "itemAudio";
     private final String XML_IMAGE = "itemImage";
+    private final String XML_LABEL = "label";
     private final String XML_PATH = "path";
     private final String XML_DEFAULT_ATTR = "default";
     
@@ -53,17 +54,17 @@ public class JFlavourItemBean implements Serializable
     public JFlavourItemBean(Element domElement)
     {
         this();
-        label = domElement.getChildText(XML_LABEL);
+        label = domElement.getChildText(XML_ITEM_LABEL);
         Element categories = domElement.getChild(XML_CATEGORY);
-        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_LABEL)); it.hasNext();) {
             this.categories.add(new Category(it.next().getText()));          
         }
         Element audio = domElement.getChild(XML_AUDIO);
-        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+        for (Iterator<Element> it = audio.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
             this.audio.add(Paths.get(it.next().getText()));          
         }
         Element images = domElement.getChild(XML_IMAGE);
-        for (Iterator<Element> it = categories.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
+        for (Iterator<Element> it = images.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
             Element next = it.next();
             ItemImage newImage = new ItemImage(Paths.get(next.getText()));
             this.images.add(newImage);  
@@ -235,10 +236,10 @@ public class JFlavourItemBean implements Serializable
     public Element toDomElement()
     {
         Element itemElement = new Element(XML_ITEM);
-        itemElement.addContent(new Element(XML_LABEL).addContent(label));
+        itemElement.addContent(new Element(XML_ITEM_LABEL).addContent(label));
         Element categoryList = new Element(XML_CATEGORY);
         for (Iterator<Category> it = categories.iterator(); it.hasNext();) {
-            categoryList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
+            categoryList.addContent(new Element(XML_LABEL).addContent(it.next().toString()));
         }
         itemElement.addContent(categoryList);
         

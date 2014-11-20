@@ -71,8 +71,8 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         id = UUID.fromString(domElement.getChildText(XML_PROJECT_ID));
         saveTimer.setActionCommand(id.toString());
         Element allItems = domElement.getChild(XML_ITEMS);
-        for (Iterator<Element> it = allItems.getDescendants(new ElementFilter()); it.hasNext();) {
-            JFlavourItemBean item = new JFlavourItemBean(it.next());
+        for (Element itemElement : allItems.getChildren()) {
+            JFlavourItemBean item = new JFlavourItemBean(itemElement);
             item.addPropertyChangeListener(this);
             items.add(item);          
         }
