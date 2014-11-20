@@ -242,13 +242,13 @@ public class JFlavourItemBean implements Serializable
         }
         itemElement.addContent(categoryList);
         
-        Element audioList = new Element(XML_CATEGORY);
+        Element audioList = new Element(XML_AUDIO);
         for (Iterator<Path> it = audio.iterator(); it.hasNext();) {
             audioList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
         }
         itemElement.addContent(audioList);
         
-        Element imageList = new Element(XML_CATEGORY);
+        Element imageList = new Element(XML_IMAGE);
         for (Iterator<ItemImage> it = images.iterator(); it.hasNext();) {
             ItemImage next = it.next();
             imageList.addContent(new Element(XML_PATH).addContent(next.toString()).setAttribute(XML_DEFAULT_ATTR, Boolean.toString(next == getDefaultImage())));
