@@ -69,6 +69,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         this();
         name = domElement.getChildText(XML_PROJECT_NAME);
         id = UUID.fromString(domElement.getChildText(XML_PROJECT_ID));
+        saveTimer.setActionCommand(id.toString());
         Element allItems = domElement.getChild(XML_ITEMS);
         for (Iterator<Element> it = allItems.getDescendants(new ElementFilter()); it.hasNext();) {
             JFlavourItemBean item = new JFlavourItemBean(it.next());
@@ -195,6 +196,9 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         if (this.dirty != dirty) {
             this.dirty = dirty;
             propertySupport.firePropertyChange(PROP_DIRTY, new Boolean(!dirty), new Boolean(dirty));
+            if (!saveTimer.isRunning()) {
+                saveTimer.start();
+            }
         }
         if (!dirty) {
             for (JFlavourItemBean item : this.items) {

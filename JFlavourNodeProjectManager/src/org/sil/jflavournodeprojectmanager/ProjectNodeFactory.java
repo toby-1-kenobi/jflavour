@@ -6,6 +6,8 @@
 
 package org.sil.jflavournodeprojectmanager;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -33,7 +35,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
  * It needs to read the project data from an XML file
  * @author toby
  */
-public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
+public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implements ActionListener
 {
     
     private static Path dataDirectory;
@@ -67,6 +69,8 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
         else
         {
             try {
+                // warning! If a project is loaded this way it doesn't yet have a listener to listen for changes
+                // so autosave wont work for this project until a listener is added
                 return loadProject(id);
             } catch (IOException ex) {
                 System.err.format("Loading project - IOException: %s%n", ex);
@@ -122,6 +126,7 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
                     // otherwise read it from the file
                     else {
                         JFlavourProjectBean project = loadProject(id);
+                        project.addActionListener(this);
                         projectCache.put(id, project);
                         list.add(project);
                     }
@@ -187,6 +192,13 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean>
     @Override
     protected Node createNodeForKey(JFlavourProjectBean key) {
         return new ProjectNode(key);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae)
+    {
+        String projectId = ae.getActionCommand();
+        ProjectNodeFactory.saveProject(UUID.fromString(projectId));
     }
     
 }
