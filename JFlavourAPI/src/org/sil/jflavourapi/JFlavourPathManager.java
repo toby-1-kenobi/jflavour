@@ -4,8 +4,11 @@
  */
 package org.sil.jflavourapi;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -14,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class JFlavourPathManager
 {
+    public static final String PROJECT_FILE_EXT = "jfp";
     
     public static Path getDataDirectory()
     {
@@ -32,6 +36,25 @@ public class JFlavourPathManager
             directory = Paths.get(System.getProperty("user.home"), "/.JFlavour");
         }
         return directory;
+    }
+    
+    public static Path getProjectFile(UUID id)
+    {
+        return getDataDirectory().resolve((id.toString() + '.' + PROJECT_FILE_EXT));
+    }
+    
+    public static Path getImagesDirectory() throws IOException
+    {
+        Path images =  getDataDirectory().resolve("images");
+        Files.createDirectories(images);
+        return images;
+    }
+    
+    public static Path getAudioDirectory() throws IOException
+    {
+        Path audio =  getDataDirectory().resolve("audio");
+        Files.createDirectories(audio);
+        return audio;
     }
     
     /**

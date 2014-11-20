@@ -44,7 +44,6 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implem
     public static final String XML_PROJECT = "jFlavourProject";
     public static final String XML_PROJECT_NAME = "jFlavourProjectName";
     public static final String XML_PROJECT_ID = "jFlavourProjectID";
-    public static final String PROJECT_FILE_EXT = "jfp";
     
     private static Map<UUID, JFlavourProjectBean> projectCache = new HashMap<UUID, JFlavourProjectBean>();
     
@@ -145,7 +144,7 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implem
     private static JFlavourProjectBean loadProject(UUID id) throws IOException, JDOMException
     {
         // the content of the project is stored in a file named by the project id
-        Path projectPath = dataDirectory.resolve(id.toString() + '.' + PROJECT_FILE_EXT);
+        Path projectPath = JFlavourPathManager.getProjectFile(id);
         if(Files.isRegularFile(projectPath) && Files.isReadable(projectPath))
         {
             SAXBuilder builder = new SAXBuilder();
@@ -164,7 +163,7 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implem
     {
         Document projectDoc = new Document(project.toDomElement());
         XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
-        Path projectPath = JFlavourPathManager.getDataDirectory().resolve(project.getId().toString() + '.' + ProjectNodeFactory.PROJECT_FILE_EXT);
+        Path projectPath = JFlavourPathManager.getProjectFile(project.getId());
         try {
             BufferedWriter writer = Files.newBufferedWriter(projectPath, Charset.forName("UTF-8"));
             xout.output(projectDoc, writer);
