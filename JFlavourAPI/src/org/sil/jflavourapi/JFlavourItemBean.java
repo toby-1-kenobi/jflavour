@@ -28,7 +28,7 @@ public class JFlavourItemBean implements Serializable
     public static final String PROP_DIRTY = "dirty";
     private String label;
     private List<Category> categories;
-    private List<Path> audio;
+    private List<ItemAudio> audio;
     private int defaultAudioIndex;
     private List<ItemImage> images;
     private int defaultImageIndex;
@@ -48,7 +48,7 @@ public class JFlavourItemBean implements Serializable
     {
         label = "";
         categories = new ArrayList<Category>(5);
-        audio = new ArrayList<Path>(5);
+        audio = new ArrayList<ItemAudio>(5);
         images = new ArrayList<ItemImage>(5);
         dirty = false;
         propertySupport = new PropertyChangeSupport(this);
@@ -64,7 +64,13 @@ public class JFlavourItemBean implements Serializable
         }
         Element audio = domElement.getChild(XML_AUDIO);
         for (Iterator<Element> it = audio.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
-            this.audio.add(Paths.get(it.next().getText()));          
+            Element next = it.next();
+            ItemAudio newAudio = new ItemAudio(Paths.get(next.getText()));
+            this.audio.add(newAudio);  
+            if (Boolean.parseBoolean(next.getAttributeValue(XML_DEFAULT_ATTR)))
+            {
+                setDefaultAudio(newAudio);
+            }          
         }
         Element images = domElement.getChild(XML_IMAGE);
         for (Iterator<Element> it = images.getDescendants(new ElementFilter(XML_PATH)); it.hasNext();) {
@@ -145,29 +151,39 @@ public class JFlavourItemBean implements Serializable
     /**
      * @return the audio
      */
-    public List<Path> getAudioFilePaths()
+    public List<ItemAudio> getAudio()
     {
         return audio;
     }
     
-    public Path getAudioFilePaths(int index)
+    public ItemAudio getAudio(int index)
     {
         return audio.get(index);
     }
 
     /**
-     * @param audioFilePaths the audio to set
+     * @param audio the audio to set
      */
-    public void setAudioFilePaths(List<Path> audioFilePaths)
+    public void setAudio(List<ItemAudio> audio)
     {
-        this.audio = audioFilePaths;
+        this.audio = audio;
         setDirty(true);
     }
     
-    public void setAudioFilePaths(int index, Path path)
+    public void setAudio(int index, ItemAudio audio)
     {
-        audio.set(index, path);
+        this.audio.set(index, audio);
         setDirty(true);
+    }
+
+    private void setDefaultAudio(ItemAudio defaultAudio)
+    {
+        defaultAudioIndex = audio.indexOf(defaultAudio);
+    }
+
+    private ItemAudio getDefaultAudio()
+    {
+        return audio.get(defaultAudioIndex);
     }
 
     /**
@@ -262,8 +278,9 @@ public class JFlavourItemBean implements Serializable
         itemElement.addContent(categoryList);
         
         Element audioList = new Element(XML_AUDIO);
-        for (Iterator<Path> it = audio.iterator(); it.hasNext();) {
-            audioList.addContent(new Element(XML_PATH).addContent(it.next().toString()));
+        for (Iterator<ItemAudio> it = audio.iterator(); it.hasNext();) {
+            ItemAudio next = it.next();
+            audioList.addContent(new Element(XML_PATH).addContent(next.toString()).setAttribute(XML_DEFAULT_ATTR, Boolean.toString(next == getDefaultAudio())));
         }
         itemElement.addContent(audioList);
         
