@@ -39,6 +39,7 @@ import org.openide.util.LookupListener;
 import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.InterModuleEvent;
+import org.sil.jflavourapi.ItemAudio;
 import org.sil.jflavourapi.ItemImage;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourPathManager;
@@ -746,29 +747,11 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         }
     }
     
-    private class ImageNode extends EditorNode implements HasDefaultButton
+    private abstract class MediaNode extends EditorNode implements HasDefaultButton
     {
-        private ItemImage image;
-        private JToggleButton defaultButton;
-        private boolean isDefault;
-        private PropertyChangeSupport propertySupport;
-        
-        public ImageNode(ItemImage image)
-        {
-            this(image, false);
-        }
-        
-        public ImageNode(ItemImage image, boolean defaultSelected)
-        {
-            propertySupport = new PropertyChangeSupport(this);
-            this.image = image;
-            defaultButton = makeDefaultButton(defaultSelected);
-            isDefault = false;
-            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            this.add(new JLabel(this.image.toShortString()));
-            this.add(defaultButton);
-            this.add(makeDeleteButton());
-        }
+        protected JToggleButton defaultButton;
+        protected boolean isDefault;
+        protected PropertyChangeSupport propertySupport;
 
         @Override
         public boolean isDefault()
@@ -813,10 +796,79 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
             }
             super.removeSelf();
         }
+    }
+    
+    private class ImageNode extends MediaNode implements HasDefaultButton
+    {
+        private ItemImage image;
+        
+        public ImageNode(ItemImage image)
+        {
+            this(image, false);
+        }
+        
+        public ImageNode(ItemImage image, boolean defaultSelected)
+        {
+            propertySupport = new PropertyChangeSupport(this);
+            this.image = image;
+            defaultButton = makeDefaultButton(defaultSelected);
+            isDefault = false;
+            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.add(new JLabel(this.image.toShortString()));
+            this.add(defaultButton);
+            this.add(makeDeleteButton());
+        }
         
         public ItemImage getImage()
         {
             return image;
+        }
+        
+    }
+    
+    private class AudioNode extends MediaNode implements HasDefaultButton
+    {
+        private ItemAudio audio;
+        
+        public AudioNode(ItemAudio audio)
+        {
+            this(audio, false);
+        }
+        
+        public AudioNode(ItemAudio audio, boolean defaultSelected)
+        {
+            propertySupport = new PropertyChangeSupport(this);
+            this.audio = audio;
+            defaultButton = makeDefaultButton(defaultSelected);
+            isDefault = false;
+            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.add(new JLabel(this.audio.toShortString()));
+            this.add(makePlayButton());
+            this.add(defaultButton);
+            this.add(makeDeleteButton());
+        }
+        
+        private JButton makePlayButton()
+        {
+            JButton playButton = new JButton();
+            playButton.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/play.png")));
+            playButton.addActionListener(new ActionListener() {
+                @Override
+		public void actionPerformed(ActionEvent e) {
+                    Container node = ((JButton)e.getSource()).getParent();
+                    try {
+                        ((AudioNode)node).getAudio().play();
+                    } catch (ClassCastException cce) {
+                        // this button isn't on an audio node, so we don't have any action to do.
+                    }
+                }
+            });
+            return playButton;
+        }
+        
+        public ItemAudio getAudio()
+        {
+            return audio;
         }
         
     }
