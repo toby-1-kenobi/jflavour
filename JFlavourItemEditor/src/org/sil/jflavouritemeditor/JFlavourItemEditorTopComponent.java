@@ -495,6 +495,10 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         panelImagesList.revalidate();
         
         panelAudioList.removeAll();
+        for (Iterator<ItemAudio> it = item.getAudio().iterator(); it.hasNext();) {
+            ItemAudio next = it.next();
+            panelAudioList.add(new AudioNode(next, item.getDefaultAudio() == next));
+        }
         panelAudioList.revalidate();
         
         setFormClean();
@@ -529,6 +533,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
                     image.importMedia(JFlavourPathManager.getImagesDirectory());
                 } catch (IOException ex) {
                     // could not import a copy of the image to JFlavour directory.
+                    //TODO: alert the user
                     Exceptions.printStackTrace(ex);
                 }
                 newImages.add(image);
@@ -541,6 +546,33 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         item.setImages(newImages);
         if (defaultImage != null) {
             item.setDefaultImage(defaultImage);
+        }
+        
+        // Apply the listed audio to the item
+        Component[] audioChildren = panelAudioList.getComponents();
+        ItemAudio defaultAudio = null;
+        List<ItemAudio> newAudio = new ArrayList<ItemAudio>(audioChildren.length);
+        for (Component component : audioChildren) {
+            if (component instanceof AudioNode)
+            {
+                ItemAudio audio = ((AudioNode)component).getAudio();
+                try {
+                    audio.importMedia(JFlavourPathManager.getAudioDirectory());
+                } catch (IOException ex) {
+                    // could not import a copy of the audio file to JFlavour directory.
+                    //TODO: alert the user
+                    Exceptions.printStackTrace(ex);
+                }
+                newAudio.add(audio);
+                if (((HasDefaultButton)component).isDefault())
+                {
+                    defaultAudio = audio;
+                }
+            }
+        }
+        item.setAudio(newAudio);
+        if (defaultAudio != null) {
+            item.setDefaultAudio(defaultAudio);
         }
         
         setFormClean();

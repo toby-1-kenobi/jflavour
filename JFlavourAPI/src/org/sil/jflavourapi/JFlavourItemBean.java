@@ -176,12 +176,12 @@ public class JFlavourItemBean implements Serializable
         setDirty(true);
     }
 
-    private void setDefaultAudio(ItemAudio defaultAudio)
+    public void setDefaultAudio(ItemAudio defaultAudio)
     {
         defaultAudioIndex = audio.indexOf(defaultAudio);
     }
 
-    private ItemAudio getDefaultAudio()
+    public ItemAudio getDefaultAudio()
     {
         return audio.get(defaultAudioIndex);
     }
