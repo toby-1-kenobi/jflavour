@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -94,6 +96,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     {
 
         imageChooser = new javax.swing.JFileChooser();
+        audioChooser = new javax.swing.JFileChooser();
         txtItemLabel = new javax.swing.JTextField();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
@@ -117,18 +120,24 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         panelImagePreview = new ImagePanel();
         btnRevert = new javax.swing.JButton();
 
+        imageChooser.setAcceptAllFileFilterUsed(false);
         imageChooser.setFileFilter(new FileNameExtensionFilter(
             "Image files", ImageIO.getReaderFileSuffixes()));
     imageChooser.setToolTipText(org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.imageChooser.toolTipText")); // NOI18N
     imageChooser.setMultiSelectionEnabled(true);
 
-    org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
-    btnCancel.addActionListener(new java.awt.event.ActionListener()
+    audioChooser.setAcceptAllFileFilterUsed(false);
+    audioChooser.setFileFilter(new FileNameExtensionFilter(
+        "Sound files", JFlavourItemEditorTopComponent.audioFileExtensions));
+audioChooser.setToolTipText(org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.audioChooser.toolTipText")); // NOI18N
+
+org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
+btnCancel.addActionListener(new java.awt.event.ActionListener()
+{
+    public void actionPerformed(java.awt.event.ActionEvent evt)
     {
-        public void actionPerformed(java.awt.event.ActionEvent evt)
-        {
-            btnCancelActionPerformed(evt);
-        }
+        btnCancelActionPerformed(evt);
+    }
     });
 
     org.openide.awt.Mnemonics.setLocalizedText(btnApply, "Apply");
@@ -232,6 +241,13 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     org.openide.awt.Mnemonics.setLocalizedText(labelAudio, "Audio");
 
     org.openide.awt.Mnemonics.setLocalizedText(btnBrowseAudio, "Browse...");
+    btnBrowseAudio.addActionListener(new java.awt.event.ActionListener()
+    {
+        public void actionPerformed(java.awt.event.ActionEvent evt)
+        {
+            btnBrowseAudioActionPerformed(evt);
+        }
+    });
 
     panelAudioList.setLayout(new javax.swing.BoxLayout(panelAudioList, javax.swing.BoxLayout.Y_AXIS));
     jScrollPane6.setViewportView(panelAudioList);
@@ -397,8 +413,27 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
         this.close();
     }//GEN-LAST:event_btnOkActionPerformed
 
+    private void btnBrowseAudioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseAudioActionPerformed
+    {//GEN-HEADEREND:event_btnBrowseAudioActionPerformed
+        int dialogReturn = audioChooser.showOpenDialog(this);
+        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION)
+        {
+            File[] selected = audioChooser.getSelectedFiles();
+            AudioNode aNode = null;
+            for (int i = 0; i < selected.length; ++i) {
+                aNode = new AudioNode(new ItemAudio(selected[i].toPath()));
+                aNode.addPropertyChangeListener(this);
+                panelAudioList.add(aNode);  
+                setFormDirty();
+            }
+            if (!(aNode == null)) aNode.checkForDefault(panelAudioList);
+            panelAudioList.revalidate();
+        }
+    }//GEN-LAST:event_btnBrowseAudioActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JFileChooser audioChooser;
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnBrowseAudio;
     private javax.swing.JButton btnBrowseImages;
@@ -426,6 +461,17 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     //private ImagePanel imagePreview;
     
     private JFlavourItemBean item;
+    
+    // we need to collect together the audio file extensions for use in the file chooser
+    private static String[] audioFileExtensions;
+    static
+    {
+        AudioFileFormat.Type[] formatTypes = AudioSystem.getAudioFileTypes();
+        audioFileExtensions = new String[formatTypes.length];
+        for (int i = 0; i < formatTypes.length; i++) {
+            audioFileExtensions[i] = formatTypes[i].getExtension();
+        }
+    }
     
     private static InterModuleEventHandler imeHandler = new InterModuleEventHandler();
     
