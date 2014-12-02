@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.sil.wrapper.mp3spi
+OpenIDE-Module-Localizing-Bundle: org/sil/wrapper/mp3spi/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
