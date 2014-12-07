@@ -5,19 +5,22 @@
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.sil.vorbisSPI</code-name-base>
             <suite-component/>
-            <module-dependencies/>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>org.sil.wrapper.tritonus_share</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
             <public-packages>
                 <package>com.jcraft.jogg</package>
                 <package>com.jcraft.jorbis</package>
                 <package>javazoom.spi</package>
                 <package>javazoom.spi.vorbis.sampled.convert</package>
                 <package>javazoom.spi.vorbis.sampled.file</package>
-                <package>org.tritonus.share</package>
-                <package>org.tritonus.share.midi</package>
-                <package>org.tritonus.share.sampled</package>
-                <package>org.tritonus.share.sampled.convert</package>
-                <package>org.tritonus.share.sampled.file</package>
-                <package>org.tritonus.share.sampled.mixer</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/vorbisspi1.0.3.jar</runtime-relative-path>
@@ -30,10 +33,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/jorbis-0.0.15.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jorbis-0.0.15.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/tritonus_share.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/tritonus_share.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

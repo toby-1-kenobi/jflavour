@@ -32,6 +32,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -49,7 +53,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  * Top component which displays something.
-*/
+ */
 @ConvertAsProperties(
         dtd = "-//org.sil.jflavouritemeditor//JFlavourItemEditor//EN",
         autostore = false
@@ -70,7 +74,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
 })
 public final class JFlavourItemEditorTopComponent extends TopComponent implements PropertyChangeListener
 {
-    
+
     public JFlavourItemEditorTopComponent()
     {
         this(new JFlavourItemBean());
@@ -130,6 +134,7 @@ public final class JFlavourItemEditorTopComponent extends TopComponent implement
     audioChooser.setFileFilter(new FileNameExtensionFilter(
         "Sound files", JFlavourItemEditorTopComponent.audioFileExtensions));
 audioChooser.setToolTipText(org.openide.util.NbBundle.getMessage(JFlavourItemEditorTopComponent.class, "JFlavourItemEditorTopComponent.audioChooser.toolTipText")); // NOI18N
+audioChooser.setMultiSelectionEnabled(true);
 
 org.openide.awt.Mnemonics.setLocalizedText(btnCancel, "Cancel");
 btnCancel.addActionListener(new java.awt.event.ActionListener()
@@ -357,17 +362,18 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
     private void btnBrowseImagesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseImagesActionPerformed
     {//GEN-HEADEREND:event_btnBrowseImagesActionPerformed
         int dialogReturn = imageChooser.showOpenDialog(this);
-        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION)
-        {
+        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION) {
             File[] selected = imageChooser.getSelectedFiles();
             ImageNode iNode = null;
             for (int i = 0; i < selected.length; ++i) {
                 iNode = new ImageNode(new ItemImage(selected[i].toPath()));
                 iNode.addPropertyChangeListener(this);
-                panelImagesList.add(iNode);  
+                panelImagesList.add(iNode);
                 setFormDirty();
             }
-            if (!(iNode == null)) iNode.checkForDefault(panelImagesList);
+            if (!(iNode == null)) {
+                iNode.checkForDefault(panelImagesList);
+            }
             panelImagesList.revalidate();
         }
     }//GEN-LAST:event_btnBrowseImagesActionPerformed
@@ -380,9 +386,8 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         Component[] children = panelCategoriesList.getComponents();
         List<Category> existingCategories = new ArrayList<Category>(children.length);
         for (Component component : children) {
-            if (component instanceof CategoryNode)
-            {
-                existingCategories.add(((CategoryNode)component).getCategory());
+            if (component instanceof CategoryNode) {
+                existingCategories.add(((CategoryNode) component).getCategory());
             }
         }
         // Now add to the list categories that aren't already there
@@ -416,17 +421,18 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
     private void btnBrowseAudioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseAudioActionPerformed
     {//GEN-HEADEREND:event_btnBrowseAudioActionPerformed
         int dialogReturn = audioChooser.showOpenDialog(this);
-        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION)
-        {
+        if (dialogReturn == javax.swing.JFileChooser.APPROVE_OPTION) {
             File[] selected = audioChooser.getSelectedFiles();
             AudioNode aNode = null;
             for (int i = 0; i < selected.length; ++i) {
                 aNode = new AudioNode(new ItemAudio(selected[i].toPath()));
                 aNode.addPropertyChangeListener(this);
-                panelAudioList.add(aNode);  
+                panelAudioList.add(aNode);
                 setFormDirty();
             }
-            if (!(aNode == null)) aNode.checkForDefault(panelAudioList);
+            if (!(aNode == null)) {
+                aNode.checkForDefault(panelAudioList);
+            }
             panelAudioList.revalidate();
         }
     }//GEN-LAST:event_btnBrowseAudioActionPerformed
@@ -459,32 +465,42 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
     private javax.swing.JTextField txtItemLabel;
     // End of variables declaration//GEN-END:variables
     //private ImagePanel imagePreview;
-    
+
     private JFlavourItemBean item;
-    
+    public static final String AUDIO_EXT_PATH = "Services/ReadableAudioFileExtensions";
+
     // we need to collect together the audio file extensions for use in the file chooser
     private static String[] audioFileExtensions;
-    static
-    {
+
+    static {
         AudioFileFormat.Type[] formatTypes = AudioSystem.getAudioFileTypes();
-        audioFileExtensions = new String[formatTypes.length];
+        ArrayList<String> audioFileExtensionsList = new ArrayList<String>(formatTypes.length);
         for (int i = 0; i < formatTypes.length; i++) {
-            audioFileExtensions[i] = formatTypes[i].getExtension();
+            audioFileExtensionsList.add(formatTypes[i].getExtension());
         }
+        // SPIs may register ability to read audio files in the System File System
+        FileObject systemFsAudioExt = FileUtil.getConfigFile(AUDIO_EXT_PATH);
+        DataFolder extFolder = DataFolder.findFolder(systemFsAudioExt);
+        DataObject[] children = extFolder.getChildren();
+        for (DataObject child : children) {
+            audioFileExtensionsList.add((String)child.getName());
+        }
+        audioFileExtensions = new String[audioFileExtensionsList.size()];
+        audioFileExtensionsList.toArray(audioFileExtensions);
     }
-    
+
     private static InterModuleEventHandler imeHandler = new InterModuleEventHandler();
-    
+
     public static void startHandlingInterModuleEvents()
     {
         imeHandler.startListening();
     }
-    
+
     public static void stopHandlingInterModuleEvents()
     {
         imeHandler.stopListening();
     }
-    
+
     @Override
     public void componentOpened()
     {
@@ -510,7 +526,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
-    
+
     /**
      * create a new item and open in the editor window
      */
@@ -522,59 +538,57 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         itemEditor.open();
         itemEditor.requestActive();
     }
-    
+
     private void populateFromItem()
     {
         txtItemLabel.setText(item.getLabel());
-        
+
         panelCategoriesList.removeAll();
         for (Iterator<Category> it = item.getCategories().iterator(); it.hasNext();) {
             panelCategoriesList.add(new CategoryNode(it.next()));
         }
         panelCategoriesList.revalidate();
-        
+
         panelImagesList.removeAll();
         for (Iterator<ItemImage> it = item.getImages().iterator(); it.hasNext();) {
             ItemImage next = it.next();
             panelImagesList.add(new ImageNode(next, item.getDefaultImage() == next));
         }
         panelImagesList.revalidate();
-        
+
         panelAudioList.removeAll();
         for (Iterator<ItemAudio> it = item.getAudio().iterator(); it.hasNext();) {
             ItemAudio next = it.next();
             panelAudioList.add(new AudioNode(next, item.getDefaultAudio() == next));
         }
         panelAudioList.revalidate();
-        
+
         setFormClean();
     }
-    
+
     private void updateItemFromForm()
     {
         // Apply the label to the item
         item.setLabel(txtItemLabel.getText());
-        
+
         // Apply the listed categories to the item
         // TODO?: get tree lock for panelCategoriesList
         Component[] categoriesChildren = panelCategoriesList.getComponents();
         List<Category> newCategories = new ArrayList<Category>(categoriesChildren.length);
         for (Component component : categoriesChildren) {
-            if (component instanceof CategoryNode)
-            {
-                newCategories.add(((CategoryNode)component).getCategory());
+            if (component instanceof CategoryNode) {
+                newCategories.add(((CategoryNode) component).getCategory());
             }
         }
         item.setCategories(newCategories);
-        
+
         // Apply the listed images to the item
         Component[] imageChildren = panelImagesList.getComponents();
         ItemImage defaultImage = null;
         List<ItemImage> newImages = new ArrayList<ItemImage>(imageChildren.length);
         for (Component component : imageChildren) {
-            if (component instanceof ImageNode)
-            {
-                ItemImage image = ((ImageNode)component).getImage();
+            if (component instanceof ImageNode) {
+                ItemImage image = ((ImageNode) component).getImage();
                 try {
                     image.importMedia(JFlavourPathManager.getImagesDirectory());
                 } catch (IOException ex) {
@@ -583,8 +597,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                     Exceptions.printStackTrace(ex);
                 }
                 newImages.add(image);
-                if (((HasDefaultButton)component).isDefault())
-                {
+                if (((HasDefaultButton) component).isDefault()) {
                     defaultImage = image;
                 }
             }
@@ -593,15 +606,14 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         if (defaultImage != null) {
             item.setDefaultImage(defaultImage);
         }
-        
+
         // Apply the listed audio to the item
         Component[] audioChildren = panelAudioList.getComponents();
         ItemAudio defaultAudio = null;
         List<ItemAudio> newAudio = new ArrayList<ItemAudio>(audioChildren.length);
         for (Component component : audioChildren) {
-            if (component instanceof AudioNode)
-            {
-                ItemAudio audio = ((AudioNode)component).getAudio();
+            if (component instanceof AudioNode) {
+                ItemAudio audio = ((AudioNode) component).getAudio();
                 try {
                     audio.importMedia(JFlavourPathManager.getAudioDirectory());
                 } catch (IOException ex) {
@@ -610,8 +622,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                     Exceptions.printStackTrace(ex);
                 }
                 newAudio.add(audio);
-                if (((HasDefaultButton)component).isDefault())
-                {
+                if (((HasDefaultButton) component).isDefault()) {
                     defaultAudio = audio;
                 }
             }
@@ -620,16 +631,16 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         if (defaultAudio != null) {
             item.setDefaultAudio(defaultAudio);
         }
-        
+
         setFormClean();
     }
-    
+
     private void setFormDirty()
     {
         btnApply.setEnabled(true);
         btnCancel.setEnabled(true);
     }
-    
+
     private void setFormClean()
     {
         btnApply.setEnabled(false);
@@ -639,21 +650,18 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
     @Override
     public void propertyChange(PropertyChangeEvent pce)
     {
-        if (pce.getPropertyName().equals("default"))
-        {
-            if ((Boolean)pce.getNewValue())
-            {
+        if (pce.getPropertyName().equals("default")) {
+            if ((Boolean) pce.getNewValue()) {
                 Object sourceNode = pce.getSource();
-                if (sourceNode instanceof ImageNode)
-                {
-                    ItemImage image = ((ImageNode)sourceNode).getImage();
+                if (sourceNode instanceof ImageNode) {
+                    ItemImage image = ((ImageNode) sourceNode).getImage();
                     try {
                         image.load();
-                        ((ImagePanel)panelImagePreview).setImage(image.getBufferedImage());
+                        ((ImagePanel) panelImagePreview).setImage(image.getBufferedImage());
                     } catch (IOException e) {
                         // could not load the image
                         // set image preview to nothing
-                        ((ImagePanel)panelImagePreview).setImage(null);
+                        ((ImagePanel) panelImagePreview).setImage(null);
                         //TODO: replace default toggle button with an error icon
                         //TODO: set ItemImage object to be in error state
                     }
@@ -661,74 +669,78 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             }
         }
     }
-    
+
     private static class InterModuleEventHandler implements LookupListener
     {
-        
+
         private Lookup.Result<InterModuleEvent> result = null;
         public final String MODULE_ID = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent";
         public final String NEW_ITEM_ACTION_ID = "editNewItem";
-        
+
         public InterModuleEventHandler()
         {
             result = CentralLookup.getDefault().lookupResult(InterModuleEvent.class);
         }
-        
+
         public void startListening()
         {
-            result.addLookupListener (this);
+            result.addLookupListener(this);
         }
-        
+
         public void stopListening()
         {
-            result.removeLookupListener (this);
+            result.removeLookupListener(this);
         }
-        
+
         @Override
         public void resultChanged(LookupEvent le)
         {
             Collection<? extends InterModuleEvent> allEvents = result.allInstances();
             if (!allEvents.isEmpty()) {
                 InterModuleEvent event = allEvents.iterator().next();
-                if (event.hasIdentifier(MODULE_ID + '.' + NEW_ITEM_ACTION_ID))
-                {
+                if (event.hasIdentifier(MODULE_ID + '.' + NEW_ITEM_ACTION_ID)) {
                     JFlavourItemEditorTopComponent.editNewItem(event.getProject());
                     CentralLookup.getDefault().remove(event);
                 }
             }
         }
     }
-    
+
     private abstract class EditorNode extends JPanel
-    {        
+    {
+
         protected JButton makeDeleteButton()
         {
             JButton deleteBtn = new JButton();
-            deleteBtn.addActionListener(new ActionListener() {
+            deleteBtn.addActionListener(new ActionListener()
+            {
                 @Override
-		public void actionPerformed(ActionEvent e) {
-                    Component actionSource = (Component)(e.getSource());
+                public void actionPerformed(ActionEvent e)
+                {
+                    Component actionSource = (Component) (e.getSource());
                     // remove the node from its parent
-                    ((EditorNode)(actionSource.getParent())).removeSelf();
-		}
+                    ((EditorNode) (actionSource.getParent())).removeSelf();
+                }
             });
             deleteBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/delete.png")));
             return deleteBtn;
         }
-        
+
         protected JToggleButton makeDefaultButton()
         {
             return makeDefaultButton(false);
         }
-        
+
         protected JToggleButton makeDefaultButton(boolean isSelected)
         {
             JToggleButton defaultBtn = new JToggleButton();
-            defaultBtn.addActionListener(new ActionListener() {
+            defaultBtn.addActionListener(new ActionListener()
+            {
                 @Override
-		public void actionPerformed(ActionEvent e) {
-                    JToggleButton actionSource = (JToggleButton)(e.getSource());
-                    if(!actionSource.isSelected()) {
+                public void actionPerformed(ActionEvent e)
+                {
+                    JToggleButton actionSource = (JToggleButton) (e.getSource());
+                    if (!actionSource.isSelected()) {
                         // Cannot manually unset default toggle, so toggle again if unset
                         actionSource.setSelected(true);
                     } else {
@@ -736,10 +748,9 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                         Icon blackTick = new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png"));
                         Container node = actionSource.getParent();
                         Component[] allNodes = node.getParent().getComponents();
-                        for (int i = 0; i < allNodes.length; ++i) 
-                        {
+                        for (int i = 0; i < allNodes.length; ++i) {
                             try {
-                                HasDefaultButton nodeD = (HasDefaultButton)allNodes[i];
+                                HasDefaultButton nodeD = (HasDefaultButton) allNodes[i];
                                 if (nodeD == node) {
                                     nodeD.setDefault(true, new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
                                 } else {
@@ -751,7 +762,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                             }
                         }
                     }
-		}
+                }
             });
             if (isSelected) {
                 defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/colour_black.png")));
@@ -761,7 +772,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             defaultBtn.setSelected(isSelected);
             return defaultBtn;
         }
-        
+
         protected void removeSelf()
         {
             Container parent = getParent();
@@ -770,15 +781,14 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             parent.revalidate();
             parent.repaint();
         }
-        
+
         public void checkForDefault(Container nodeParent)
         {
             HasDefaultButton defaultNode = null;
             Component[] allNodes = nodeParent.getComponents();
-            for (int i = allNodes.length - 1; i >=0 ; --i)
-            {
+            for (int i = allNodes.length - 1; i >= 0; --i) {
                 try {
-                    defaultNode = (HasDefaultButton)allNodes[i];
+                    defaultNode = (HasDefaultButton) allNodes[i];
                     if (defaultNode.isDefault()) {
                         // one of the nodes is default, that's all we need
                         // assume the other nodes aren't - it's handled by the behaviour of the default toggle button
@@ -792,25 +802,29 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             // if we reach here it means we haven't found a default node
             // if the variable defaultNode is not null it means we found at least one node with a default button
             // so make it default so one is default.
-            if (!(defaultNode == null)) defaultNode.setDefault(true, new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
+            if (!(defaultNode == null)) {
+                defaultNode.setDefault(true, new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
+            }
         }
     }
-    
+
     private interface HasDefaultButton
     {
+
         public boolean isDefault();
-        
+
         public void setDefault(boolean defaultValue, Icon setIcon);
-    
+
         public void addPropertyChangeListener(PropertyChangeListener listener);
 
         public void removePropertyChangeListener(PropertyChangeListener listener);
     }
-    
+
     private class CategoryNode extends EditorNode
     {
+
         private Category category;
-        
+
         public CategoryNode(Category category)
         {
             this.category = category;
@@ -818,15 +832,16 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             this.add(new JLabel(this.category.toString()));
             this.add(makeDeleteButton());
         }
-        
+
         public Category getCategory()
         {
             return category;
         }
     }
-    
+
     private abstract class MediaNode extends EditorNode implements HasDefaultButton
     {
+
         protected JToggleButton defaultButton;
         protected boolean isDefault;
         protected PropertyChangeSupport propertySupport;
@@ -842,18 +857,20 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         {
             boolean oldValue = isDefault;
             defaultButton.setSelected(defaultValue);
-            if (!(setIcon == null)) defaultButton.setIcon(setIcon);
+            if (!(setIcon == null)) {
+                defaultButton.setIcon(setIcon);
+            }
             isDefault = defaultValue;
             propertySupport.firePropertyChange("default", new Boolean(oldValue), new Boolean(defaultValue));
         }
-    
+
         @Override
         public void addPropertyChangeListener(PropertyChangeListener listener)
         {
             // it seems like the JPanel constructor likes to call this method
             // and that happens before propertySupport is initialised,
             // so make sure that it's not null first.
-            if (propertySupport != null){
+            if (propertySupport != null) {
                 propertySupport.addPropertyChangeListener(listener);
             }
         }
@@ -863,7 +880,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         {
             propertySupport.removePropertyChangeListener(listener);
         }
-        
+
         @Override
         protected void removeSelf()
         {
@@ -875,16 +892,17 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             super.removeSelf();
         }
     }
-    
+
     private class ImageNode extends MediaNode implements HasDefaultButton
     {
+
         private ItemImage image;
-        
+
         public ImageNode(ItemImage image)
         {
             this(image, false);
         }
-        
+
         public ImageNode(ItemImage image, boolean defaultSelected)
         {
             propertySupport = new PropertyChangeSupport(this);
@@ -896,23 +914,24 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             this.add(defaultButton);
             this.add(makeDeleteButton());
         }
-        
+
         public ItemImage getImage()
         {
             return image;
         }
-        
+
     }
-    
+
     private class AudioNode extends MediaNode implements HasDefaultButton
     {
+
         private ItemAudio audio;
-        
+
         public AudioNode(ItemAudio audio)
         {
             this(audio, false);
         }
-        
+
         public AudioNode(ItemAudio audio, boolean defaultSelected)
         {
             propertySupport = new PropertyChangeSupport(this);
@@ -925,17 +944,19 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             this.add(defaultButton);
             this.add(makeDeleteButton());
         }
-        
+
         private JButton makePlayButton()
         {
             JButton playButton = new JButton();
             playButton.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/play.png")));
-            playButton.addActionListener(new ActionListener() {
+            playButton.addActionListener(new ActionListener()
+            {
                 @Override
-		public void actionPerformed(ActionEvent e) {
-                    Container node = ((JButton)e.getSource()).getParent();
+                public void actionPerformed(ActionEvent e)
+                {
+                    Container node = ((JButton) e.getSource()).getParent();
                     try {
-                        ((AudioNode)node).getAudio().play();
+                        ((AudioNode) node).getAudio().play();
                     } catch (ClassCastException cce) {
                         // this button isn't on an audio node, so we don't have any action to do.
                     }
@@ -943,11 +964,11 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
             });
             return playButton;
         }
-        
+
         public ItemAudio getAudio()
         {
             return audio;
         }
-        
+
     }
 }

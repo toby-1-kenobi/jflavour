@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.sil.wrapper.jlayer
+OpenIDE-Module-Localizing-Bundle: org/sil/wrapper/jlayer/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

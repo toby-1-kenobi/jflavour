@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.sil.vorbisSPI
+OpenIDE-Module-Layer: org/sil/vorbisSPI/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/sil/vorbisSPI/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 

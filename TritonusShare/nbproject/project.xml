@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.sil.wrapper.tritonus_share</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>org.tritonus.share</package>
+                <package>org.tritonus.share.midi</package>
+                <package>org.tritonus.share.sampled</package>
+                <package>org.tritonus.share.sampled.convert</package>
+                <package>org.tritonus.share.sampled.file</package>
+                <package>org.tritonus.share.sampled.mixer</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/tritonus_share.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/tritonus_share.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

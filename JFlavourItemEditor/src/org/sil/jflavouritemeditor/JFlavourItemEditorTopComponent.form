@@ -23,6 +23,7 @@
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/sil/jflavouritemeditor/Bundle.properties" key="JFlavourItemEditorTopComponent.audioChooser.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
+        <Property name="multiSelectionEnabled" type="boolean" value="true"/>
       </Properties>
     </Component>
   </NonVisualComponents>

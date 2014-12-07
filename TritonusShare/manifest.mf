@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.sil.wrapper.tritonus_share
+OpenIDE-Module-Localizing-Bundle: org/sil/wrapper/tritonus_share/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

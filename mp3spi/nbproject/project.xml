@@ -5,34 +5,33 @@
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.sil.wrapper.mp3spi</code-name-base>
             <suite-component/>
-            <module-dependencies/>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>org.sil.wrapper.jlayer</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.sil.wrapper.tritonus_share</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
             <public-packages>
-                <package>javazoom.jl.converter</package>
-                <package>javazoom.jl.decoder</package>
-                <package>javazoom.jl.player</package>
-                <package>javazoom.jl.player.advanced</package>
                 <package>javazoom.spi</package>
                 <package>javazoom.spi.mpeg.sampled.convert</package>
                 <package>javazoom.spi.mpeg.sampled.file</package>
                 <package>javazoom.spi.mpeg.sampled.file.tag</package>
-                <package>org.tritonus.share</package>
-                <package>org.tritonus.share.midi</package>
-                <package>org.tritonus.share.sampled</package>
-                <package>org.tritonus.share.sampled.convert</package>
-                <package>org.tritonus.share.sampled.file</package>
-                <package>org.tritonus.share.sampled.mixer</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/mp3spi1.9.5.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/mp3spi1.9.5.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/bin/tritonus_share.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/lib/tritonus_share.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/bin/jl1.0.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/lib/jl1.0.1.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
