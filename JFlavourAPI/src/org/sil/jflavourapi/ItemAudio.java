@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -35,7 +38,11 @@ public class ItemAudio extends ItemMedia
         if (audio == null) {
             try {
                 audio = AudioSystem.getClip();
-                audio.open(AudioSystem.getAudioInputStream(mediaFile.toFile()));
+                AudioInputStream soundIn = AudioSystem.getAudioInputStream(mediaFile.toFile());
+                AudioFormat format = soundIn.getFormat();
+                DataLine.Info info = new DataLine.Info(Clip.class, format);
+                audio = (Clip)AudioSystem.getLine(info);
+                audio.open(soundIn);
             } catch (LineUnavailableException ex) {
                 Logger.getLogger(ItemAudio.class.getName()).log(Level.SEVERE, null, ex);
             } catch (UnsupportedAudioFileException ex) {
