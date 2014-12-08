@@ -107,6 +107,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         // start fresh each time we build this
         panelTools.removeAll();
         selectionDependantTools.clear();
+        projectDependantTools.clear();
         // go to the folder where we can find the info for the buttons we're making
         DataFolder toolsFolder = DataFolder.findFolder(systemFsTools);
         DataObject[] children = toolsFolder.getChildren();
@@ -137,11 +138,15 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             }
             if (btnAlwaysActive != null) {
                 // keep track of the buttons that need to be disabled or enabled
-                if (!((Boolean)btnAlwaysActive).booleanValue())
+                if (!((Boolean)btnAlwaysActive))
                 {
                     selectionDependantTools.add(btn);
                     btn.setEnabled(false);
                     //Todo: enable if selection exists
+                } else {
+                    // otherwise it's a project dependant tool
+                    projectDependantTools.add(btn);
+                    if (activeProject == null) btn.setEnabled(false);
                 }
             }
             panelTools.add(btn);
@@ -162,6 +167,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     // keep a list of components that can only be used when items are selected
     // that way we can enable and disbale them as needed
     private List<JComponent> selectionDependantTools = new ArrayList<JComponent>();
+    // also a list of components that can only be used when a project is selected
+    private List<JComponent> projectDependantTools = new ArrayList<JComponent>();
     
     // Todo: put these in a seperate package that can be public API
     public static final String TOOLS_PATH = "UI/JFlavourTools";
@@ -205,6 +212,9 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         if (!allProjects.isEmpty()) {
             activeProject = allProjects.iterator().next();
             labelActiveProject.setText(activeProject.getName());
+            for (JComponent tool : projectDependantTools) {
+                tool.setEnabled(true);
+            }
         } else {
             // do nothing if no projects are in the lookup
         }
