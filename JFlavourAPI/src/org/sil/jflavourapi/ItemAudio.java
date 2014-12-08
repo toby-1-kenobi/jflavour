@@ -32,13 +32,15 @@ public class ItemAudio extends ItemMedia
     @Override
     public void load() throws IOException
     {
-        try {
-            audio = AudioSystem.getClip();
-            audio.open(AudioSystem.getAudioInputStream(mediaFile.toFile()));
-        } catch (LineUnavailableException ex) {
-            Logger.getLogger(ItemAudio.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedAudioFileException ex) {
-            Logger.getLogger(ItemAudio.class.getName()).log(Level.SEVERE, null, ex);
+        if (audio == null) {
+            try {
+                audio = AudioSystem.getClip();
+                audio.open(AudioSystem.getAudioInputStream(mediaFile.toFile()));
+            } catch (LineUnavailableException ex) {
+                Logger.getLogger(ItemAudio.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (UnsupportedAudioFileException ex) {
+                Logger.getLogger(ItemAudio.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -48,8 +50,9 @@ public class ItemAudio extends ItemMedia
         audio = null;
     }
     
-    public void play()
+    public void play() throws IOException
     {
+        load();
         audio.start();
     }
     
