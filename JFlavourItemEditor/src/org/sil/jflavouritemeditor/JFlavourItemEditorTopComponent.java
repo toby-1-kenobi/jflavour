@@ -957,6 +957,8 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                     Container node = ((JButton) e.getSource()).getParent();
                     try {
                         ((AudioNode) node).getAudio().play();
+                    } catch (IOException ioe) {
+                        //TODO: handle IO exception
                     } catch (ClassCastException cce) {
                         // this button isn't on an audio node, so we don't have any action to do.
                     }

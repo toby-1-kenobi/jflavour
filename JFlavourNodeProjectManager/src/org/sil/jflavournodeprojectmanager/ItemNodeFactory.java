@@ -14,8 +14,7 @@ import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
- * A factory to create project nodes.
- * It needs to read the project data from an XML file
+ * A factory to create item nodes.
  * @author toby
  */
 public class ItemNodeFactory extends ChildFactory<JFlavourItemBean>

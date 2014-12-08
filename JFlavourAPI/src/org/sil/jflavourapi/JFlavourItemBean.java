@@ -7,13 +7,10 @@ package org.sil.jflavourapi;
 import java.beans.*;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
 
@@ -236,7 +233,11 @@ public class JFlavourItemBean implements Serializable
     
     public ItemImage getDefaultImage()
     {
-        return images.get(defaultImageIndex);
+        try {
+            return images.get(defaultImageIndex);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

@@ -22,12 +22,15 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.IconView;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
@@ -75,6 +78,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             @Override
             public void fileDeleted(FileEvent fe) {initControlPanel();}
         });
+        
+        associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
     }
 
     /** This method is called from within the constructor to
@@ -215,6 +220,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             for (JComponent tool : projectDependantTools) {
                 tool.setEnabled(true);
             }
+            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
+            explorerManager.getRootContext().setDisplayName("Items from selected categories");
         } else {
             // do nothing if no projects are in the lookup
         }
