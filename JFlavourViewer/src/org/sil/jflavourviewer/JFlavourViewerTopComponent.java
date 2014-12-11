@@ -7,6 +7,8 @@ package org.sil.jflavourviewer;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +52,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_JFlavourViewerAction",
 preferredID = "JFlavourViewerTopComponent")
-public final class JFlavourViewerTopComponent extends TopComponent implements LookupListener, ExplorerManager.Provider
+public final class JFlavourViewerTopComponent extends TopComponent implements LookupListener, PropertyChangeListener, ExplorerManager.Provider
 {
 
     public JFlavourViewerTopComponent()
@@ -215,7 +217,9 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     {
         Collection<? extends JFlavourProjectBean> allProjects = result.allInstances();
         if (!allProjects.isEmpty()) {
+            if (activeProject != null) activeProject.removePropertyChangeListener(this);
             activeProject = allProjects.iterator().next();
+            activeProject.addPropertyChangeListener(this);
             labelActiveProject.setText(activeProject.getName());
             for (JComponent tool : projectDependantTools) {
                 tool.setEnabled(true);
@@ -233,5 +237,19 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public ExplorerManager getExplorerManager()
     {
         return explorerManager;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent pce)
+    {
+        // if the active project gets "deleted" the viewer needs to set to null
+        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_DELETED) && ((Boolean)pce.getNewValue()).booleanValue()) {
+            activeProject.removePropertyChangeListener(this);
+            activeProject = null;
+            labelActiveProject.setText("no project selected");
+            for (JComponent tool : projectDependantTools) {
+                tool.setEnabled(false);
+            }
+        }
     }
 }

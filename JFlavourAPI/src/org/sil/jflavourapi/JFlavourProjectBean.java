@@ -30,6 +30,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     private UUID id;
     private List<JFlavourItemBean> items;
     private boolean dirty;
+    private boolean deleted;
     private PropertyChangeSupport propertySupport;
     private Timer saveTimer;
     
@@ -42,6 +43,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     public static final String PROP_ITEMS = "items";
     public static final String PROP_ITEM = "item";
     public static final String PROP_DIRTY = "dirty";
+    public static final String PROP_DELETED = "deleted";
     
     /**
      * Create a new empty nameless JFlavour project
@@ -52,6 +54,7 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         id = UUID.randomUUID();
         items = new ArrayList<JFlavourItemBean>(100);
         dirty = false;
+        deleted = false;
         propertySupport = new PropertyChangeSupport(this);
         // set the timer to be for 5 seconds without repreating
         saveTimer = new Timer(5000, null);
@@ -178,6 +181,18 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
         setDirty(true);
         item.addPropertyChangeListener(this);
         propertySupport.firePropertyChange(PROP_ITEMS, oldItems, items);
+    }
+    
+    public void delete()
+    {
+        if (!deleted)
+        {
+            for (JFlavourItemBean item : items) {
+                item.delete();
+            }
+            deleted = true;
+            propertySupport.firePropertyChange(PROP_DELETED, new Boolean(!deleted), new Boolean(deleted));
+        }
     }
 
     /**

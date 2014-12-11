@@ -175,6 +175,20 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implem
         return true;
     }
     
+    public static boolean deleteSavedProject(JFlavourProjectBean project)
+    {
+        Path projectPath = JFlavourPathManager.getProjectFile(project.getId());
+        try {
+            projectCache.remove(project.getId());
+            writeCache();
+            Files.deleteIfExists(projectPath);
+            return true;
+        } catch (IOException x) {
+            System.err.format(" Delete project IOException: %s%n", x);
+            return false;
+        }
+    }
+    
     public static boolean saveProject(UUID projectID)
     {
         if (projectCache.containsKey(projectID))

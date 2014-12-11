@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
 
@@ -293,5 +295,25 @@ public class JFlavourItemBean implements Serializable
         itemElement.addContent(imageList);
         
         return itemElement;
+    }
+    
+    public void delete()
+    {
+        for (ItemMedia itemAudio : audio) {
+            itemAudio.unload();
+            try {
+                itemAudio.dispose();
+            } catch (IOException ex) {
+                Logger.getLogger(JFlavourItemBean.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        for (ItemMedia image : images) {
+            image.unload();
+            try {
+                image.dispose();
+            } catch (IOException ex) {
+                Logger.getLogger(JFlavourItemBean.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

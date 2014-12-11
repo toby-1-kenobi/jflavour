@@ -7,9 +7,12 @@
 package org.sil.jflavournodeprojectmanager;
 
 import java.io.IOException;
+import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -36,6 +39,22 @@ public class ProjectNode extends AbstractNode
         isRoot = true;
     }
     
+    @Override
+    public boolean canDestroy()
+    {
+        return true;
+    }
+    
+    @Override
+    public void destroy()
+    {
+        project.delete();
+        ProjectNodeFactory.deleteSavedProject(project);
+        Node parent = this.getParentNode();
+        parent.getChildren().remove(new Node[]{this});
+        ((ProjectNode)parent).refresh();
+    }
+    
     public boolean refresh()
     {
         if (isRoot) {
@@ -49,5 +68,18 @@ public class ProjectNode extends AbstractNode
             setChildren(Children.create(new CategoryNodeFactory(project), true));
         }
         return true;
+    }
+    
+    @Override
+    public Action[] getActions(boolean context)
+    {
+        if (!context && !isRoot) {
+            return new Action[]
+            {
+                SystemAction.get( DeleteAction.class )
+            };
+        } else {
+            return super.getActions(context);
+        }
     }
 }

@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.UUID;
+import javax.swing.ActionMap;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -74,7 +75,9 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         });
         add(btnNewProject, BorderLayout.NORTH);
         
-        associateLookup(ExplorerUtils.createLookup(explorerManager, this.getActionMap()));
+        ActionMap actionMap = this.getActionMap();
+        actionMap.put("delete", new DeleteAction());
+        associateLookup(ExplorerUtils.createLookup(explorerManager, actionMap));
         
         try {
             root = new ProjectNode();
@@ -116,13 +119,16 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
     private void createNewProject()
     {
         String name = JOptionPane.showInputDialog(this, "What is the project's name?", "New Project Name", JOptionPane.QUESTION_MESSAGE);
-        JFlavourProjectBean project = new JFlavourProjectBean();
-        project.setName(name);
-        project.addActionListener(this);
-        ProjectNodeFactory.addToCache(project);
-        ProjectNodeFactory.saveProject(project);
-        ProjectNodeFactory.writeCache();
-        root.refresh();
+        if (name != null)
+        {
+            JFlavourProjectBean project = new JFlavourProjectBean();
+            project.setName(name);
+            project.addActionListener(this);
+            ProjectNodeFactory.addToCache(project);
+            ProjectNodeFactory.saveProject(project);
+            ProjectNodeFactory.writeCache();
+            root.refresh();
+        }
     }
     
     @Override
