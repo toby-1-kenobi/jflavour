@@ -7,6 +7,7 @@
 package org.sil.jflavourapi;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 /**
  * This class defines something that modules can pass to each other through lookups
@@ -22,4 +23,6 @@ public interface InterModuleEvent
     public boolean hasIdentifier(String id);
     
     public JFlavourProjectBean getProject();
+    
+    public List<JFlavourItemBean> getItems();
 }

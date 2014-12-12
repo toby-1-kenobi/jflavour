@@ -13,6 +13,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.ItemImage;
+import org.sil.jflavourapi.JFlavourItemBean;
 
 /**
  *
@@ -50,5 +51,10 @@ public class ViewerItemNode extends AbstractNode
         } else {
             return super.getIcon(type);
         }
+    }
+    
+    public JFlavourItemBean getItem()
+    {
+        return this.item.item;
     }
 }

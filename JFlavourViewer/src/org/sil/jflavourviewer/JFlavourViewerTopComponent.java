@@ -33,10 +33,12 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
 import org.sil.jflavourapi.CentralLookup;
+import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -82,6 +84,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         });
         
         associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
+        explorerManager.addPropertyChangeListener(this);
     }
 
     /** This method is called from within the constructor to
@@ -136,8 +139,14 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                         @Override
                         public void actionPerformed(ActionEvent e)
                         {
+                            // collect a container of selected items
+                            Node[] selected = explorerManager.getSelectedNodes();
+                            List<JFlavourItemBean> selectedItems = new ArrayList<JFlavourItemBean>(selected.length);
+                            for (int i = 0; i < selected.length; i++) {
+                                selectedItems.add(((ViewerItemNode)selected[i]).getItem());
+                            }
                             // Add a ToolEvent to the Central Lookup
-                            CentralLookup.getDefault().add(new ToolEvent(e, identifier, activeProject));
+                            CentralLookup.getDefault().add(new ToolEvent(e, identifier, activeProject, selectedItems));
                         }
                     });
             } else {
@@ -148,8 +157,9 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 if (!((Boolean)btnAlwaysActive))
                 {
                     selectionDependantTools.add(btn);
-                    btn.setEnabled(false);
-                    //Todo: enable if selection exists
+                    Node[] selected = explorerManager.getSelectedNodes();
+                    if (selected.length > 0) btn.setEnabled(true);
+                    else btn.setEnabled(false);
                 } else {
                     // otherwise it's a project dependant tool
                     projectDependantTools.add(btn);
@@ -168,7 +178,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     
     private JFlavourProjectBean activeProject;
     
-    private Lookup.Result<JFlavourProjectBean> result = null;
+    private Lookup.Result<JFlavourProjectBean> projectResult = null;
     private FileObject systemFsTools;
     
     // keep a list of components that can only be used when items are selected
@@ -187,15 +197,15 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     @Override
     public void componentOpened()
     {
-        result = Utilities.actionsGlobalContext().lookupResult(JFlavourProjectBean.class);
-        result.addLookupListener (this);
+        projectResult = Utilities.actionsGlobalContext().lookupResult(JFlavourProjectBean.class);
+        projectResult.addLookupListener (this);
         initControlPanel();
     }
 
     @Override
     public void componentClosed()
     {
-        result.removeLookupListener(this);
+        projectResult.removeLookupListener(this);
     }
 
     void writeProperties(java.util.Properties p)
@@ -215,7 +225,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     @Override
     public void resultChanged(LookupEvent le)
     {
-        Collection<? extends JFlavourProjectBean> allProjects = result.allInstances();
+        Collection<? extends JFlavourProjectBean> allProjects = projectResult.allInstances();
         if (!allProjects.isEmpty()) {
             if (activeProject != null) activeProject.removePropertyChangeListener(this);
             activeProject = allProjects.iterator().next();
@@ -250,6 +260,22 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             for (JComponent tool : projectDependantTools) {
                 tool.setEnabled(false);
             }
+        }
+        // if the selection of nodes for this component has changed
+        if (pce.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES))
+        {
+            Node[] selected = explorerManager.getSelectedNodes();
+            if (selected.length > 0)
+            {
+                for (JComponent tool : selectionDependantTools) {
+                    tool.setEnabled(true);
+                }
+            } else {
+                for (JComponent tool : selectionDependantTools) {
+                    tool.setEnabled(false);
+                }
+            }
+            
         }
     }
 }

@@ -12,6 +12,11 @@
                 <attr name="actionName" stringvalue="org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent.editNewItem"/>
                 <attr name="alwaysEnabled" boolvalue="true"/>
             </file>
+            <file name="org-sil-flavouritemeditor-edit">
+                <attr name="text" stringvalue="Edit..."/>
+                <attr name="actionName" stringvalue="org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent.editSelectedItems"/>
+                <attr name="alwaysEnabled" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
 </filesystem>

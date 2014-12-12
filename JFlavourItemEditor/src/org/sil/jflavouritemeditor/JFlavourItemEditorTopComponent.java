@@ -32,10 +32,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -539,6 +541,19 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         itemEditor.requestActive();
     }
 
+    /**
+     * open an editor window on each item selected in the viewer
+     */
+    public static void editSelectedItems(List<JFlavourItemBean> selected)
+    {
+        TopComponent itemEditor = null;
+        for (JFlavourItemBean item : selected) {
+            itemEditor = new JFlavourItemEditorTopComponent(item);
+            itemEditor.open();
+        }
+        if (itemEditor != null) itemEditor.requestActive();
+    }
+
     private void populateFromItem()
     {
         txtItemLabel.setText(item.getLabel());
@@ -676,6 +691,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
         private Lookup.Result<InterModuleEvent> result = null;
         public final String MODULE_ID = "org.sil.jflavouritemeditor.JFlavourItemEditorTopComponent";
         public final String NEW_ITEM_ACTION_ID = "editNewItem";
+        public final String EDIT_SELECTED_ACTION_ID = "editSelectedItems";
 
         public InterModuleEventHandler()
         {
@@ -700,6 +716,10 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                 InterModuleEvent event = allEvents.iterator().next();
                 if (event.hasIdentifier(MODULE_ID + '.' + NEW_ITEM_ACTION_ID)) {
                     JFlavourItemEditorTopComponent.editNewItem(event.getProject());
+                    CentralLookup.getDefault().remove(event);
+                }
+                if (event.hasIdentifier(MODULE_ID + '.' + EDIT_SELECTED_ACTION_ID)) {
+                    JFlavourItemEditorTopComponent.editSelectedItems(event.getItems());
                     CentralLookup.getDefault().remove(event);
                 }
             }
@@ -765,7 +785,7 @@ btnCancel.addActionListener(new java.awt.event.ActionListener()
                 }
             });
             if (isSelected) {
-                defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/colour_black.png")));
+                defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_colour.png")));
             } else {
                 defaultBtn.setIcon(new ImageIcon(getClass().getResource("/org/sil/jflavouritemeditor/images/tick_black.png")));
             }

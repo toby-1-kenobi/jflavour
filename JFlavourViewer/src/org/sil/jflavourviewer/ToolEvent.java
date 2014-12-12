@@ -7,7 +7,10 @@
 package org.sil.jflavourviewer;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
+import org.openide.explorer.ExplorerManager;
 import org.sil.jflavourapi.InterModuleEvent;
+import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -19,12 +22,14 @@ public class ToolEvent implements InterModuleEvent
     private ActionEvent event;
     private String identifier;
     private JFlavourProjectBean project;
+    private List<JFlavourItemBean> items;
     
-    public ToolEvent(ActionEvent event, String identifier, JFlavourProjectBean project)
+    public ToolEvent(ActionEvent event, String identifier, JFlavourProjectBean project, List<JFlavourItemBean> items)
     {
         this.event = event;
         this.identifier = identifier;
         this.project = project;
+        this.items = items;
     }
 
     @Override
@@ -49,6 +54,12 @@ public class ToolEvent implements InterModuleEvent
     public JFlavourProjectBean getProject()
     {
         return project;
+    }
+
+    @Override
+    public List<JFlavourItemBean> getItems()
+    {
+        return items;
     }
     
 }
