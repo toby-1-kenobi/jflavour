@@ -83,6 +83,12 @@ public class ViewerItemNode extends AbstractNode
         }
     }
     
+    @Override
+    public Action getPreferredAction()
+    {
+        return SystemAction.get(PlayAudioAction.class);
+    }
+    
     public JFlavourItemBean getItem()
     {
         return this.item.item;
