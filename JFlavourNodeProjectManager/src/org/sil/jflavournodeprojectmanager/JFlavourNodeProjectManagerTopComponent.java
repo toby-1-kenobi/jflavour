@@ -76,7 +76,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         add(btnNewProject, BorderLayout.NORTH);
         
         ActionMap actionMap = this.getActionMap();
-        actionMap.put("delete", new DeleteAction());
+        actionMap.put("delete", new ProjectDeleteAction());
         associateLookup(ExplorerUtils.createLookup(explorerManager, actionMap));
         
         try {

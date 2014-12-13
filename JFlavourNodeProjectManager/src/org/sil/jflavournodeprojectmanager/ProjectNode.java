@@ -76,7 +76,7 @@ public class ProjectNode extends AbstractNode
         if (!context && !isRoot) {
             return new Action[]
             {
-                SystemAction.get( DeleteAction.class )
+                SystemAction.get( ProjectDeleteAction.class )
             };
         } else {
             return super.getActions(context);

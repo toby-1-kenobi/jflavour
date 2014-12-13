@@ -17,7 +17,7 @@ import org.openide.util.actions.NodeAction;
  *
  * @author toby
  */
-public class DeleteAction extends NodeAction
+public class ProjectDeleteAction extends NodeAction
 {
 
     @Override
