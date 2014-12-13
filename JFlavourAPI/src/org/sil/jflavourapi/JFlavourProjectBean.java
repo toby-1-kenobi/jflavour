@@ -176,11 +176,20 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     
     public void addItem(JFlavourItemBean item)
     {
-        List<JFlavourItemBean> oldItems = this.items;
+        List<JFlavourItemBean> oldItems = new ArrayList<JFlavourItemBean>(this.items);
         this.items.add(item);
         setDirty(true);
         item.addPropertyChangeListener(this);
-        propertySupport.firePropertyChange(PROP_ITEMS, oldItems, items);
+        propertySupport.firePropertyChange(PROP_ITEM, oldItems, items);
+    }
+    
+    public void removeItem(JFlavourItemBean item)
+    {
+        List<JFlavourItemBean> oldItems = new ArrayList<JFlavourItemBean>(this.items);
+        this.items.remove(item);
+        item.removePropertyChangeListener(this);
+        setDirty(true);
+        propertySupport.firePropertyChange(PROP_ITEM, oldItems, items);
     }
     
     public void delete()

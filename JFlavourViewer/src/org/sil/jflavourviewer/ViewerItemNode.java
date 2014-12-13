@@ -9,11 +9,15 @@ package org.sil.jflavourviewer;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 import org.sil.jflavourapi.ItemImage;
 import org.sil.jflavourapi.JFlavourItemBean;
+import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
  *
@@ -22,10 +26,13 @@ import org.sil.jflavourapi.JFlavourItemBean;
 public class ViewerItemNode extends AbstractNode
 {
     private ViewerItem item;
+    private JFlavourProjectBean activeProject;
      
-    public ViewerItemNode(ViewerItem item) {
+    public ViewerItemNode(ViewerItem item, JFlavourProjectBean activeProject)
+    {
         super (Children.LEAF, Lookups.singleton(item));
         this.item = item;
+        this.activeProject = activeProject;
         setDisplayName (item.item.getLabel());
     }
     
@@ -50,6 +57,29 @@ public class ViewerItemNode extends AbstractNode
             }
         } else {
             return super.getIcon(type);
+        }
+    }
+    
+    @Override
+    public void destroy()
+    {
+        item.item.delete();
+        activeProject.removeItem(item.item);
+        Node parent = this.getParentNode();
+        parent.getChildren().remove(new Node[]{this});
+        
+    }
+    
+    @Override
+    public Action[] getActions(boolean context)
+    {
+        if (!context) {
+            return new Action[]
+            {
+                SystemAction.get( ItemDeleteAction.class )
+            };
+        } else {
+            return super.getActions(context);
         }
     }
     

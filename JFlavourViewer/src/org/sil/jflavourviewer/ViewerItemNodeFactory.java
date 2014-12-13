@@ -58,7 +58,7 @@ public class ViewerItemNodeFactory extends ChildFactory<ViewerItem>
     
     @Override
     protected Node createNodeForKey(ViewerItem key) {
-        return new ViewerItemNode(key);
+        return new ViewerItemNode(key, activeProject);
     }
     
 }

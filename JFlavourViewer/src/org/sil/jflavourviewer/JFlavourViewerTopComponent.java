@@ -12,6 +12,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.swing.ActionMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -83,7 +84,9 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             public void fileDeleted(FileEvent fe) {initControlPanel();}
         });
         
-        associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
+        ActionMap actionMap = getActionMap();
+        actionMap.put("delete", new ItemDeleteAction());
+        associateLookup(ExplorerUtils.createLookup(explorerManager, actionMap));
         explorerManager.addPropertyChangeListener(this);
     }
 
@@ -253,13 +256,14 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public void propertyChange(PropertyChangeEvent pce)
     {
         // if the active project gets "deleted" the viewer needs to set to null
-        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_DELETED) && ((Boolean)pce.getNewValue()).booleanValue()) {
+        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_DELETED) && ((Boolean)pce.getNewValue())) {
             activeProject.removePropertyChangeListener(this);
             activeProject = null;
             labelActiveProject.setText("no project selected");
             for (JComponent tool : projectDependantTools) {
                 tool.setEnabled(false);
             }
+            explorerManager.setRootContext(new AbstractNode(Children.LEAF));
         }
         // if the selection of nodes for this component has changed
         if (pce.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES))
@@ -276,6 +280,11 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 }
             }
             
+        }
+        // if an item has been added to or deleted from the project then refresh the nodes
+        if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEM) || pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEMS))
+        {
+            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
         }
     }
 }
