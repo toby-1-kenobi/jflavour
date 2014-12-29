@@ -82,4 +82,9 @@ public class ProjectNode extends AbstractNode
             return super.getActions(context);
         }
     }
+    
+    public boolean isRoot()
+    {
+        return isRoot;
+    }
 }

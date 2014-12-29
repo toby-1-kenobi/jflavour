@@ -251,6 +251,11 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     {
         return explorerManager;
     }
+    
+    private void refreshIconView()
+    {
+        explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent pce)
@@ -279,12 +284,12 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                     tool.setEnabled(false);
                 }
             }
-            
+            refreshIconView();
         }
         // if an item has been added to or deleted from the project then refresh the nodes
         if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEM) || pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEMS))
         {
-            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
+            refreshIconView();
         }
     }
 }

@@ -8,7 +8,15 @@ package org.sil.jflavournodeprojectmanager;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.swing.ActionMap;
 import javax.swing.JButton;
@@ -51,7 +59,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
     "CTL_JFlavourNodeProjectManagerTopComponent=JFlavourNodeProjectManager Window",
     "HINT_JFlavourNodeProjectManagerTopComponent=This is a JFlavourNodeProjectManager window"
 })
-public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider, ActionListener
+public final class JFlavourNodeProjectManagerTopComponent extends TopComponent implements ExplorerManager.Provider, ActionListener, PropertyChangeListener
 {
     
     private JButton btnNewProject;
@@ -90,6 +98,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
             Exceptions.printStackTrace(ex);
             root = null;
         }
+        explorerManager.addPropertyChangeListener(this);
 
     }
 
@@ -170,5 +179,62 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
     {
         String projectId = ae.getActionCommand();
         ProjectNodeFactory.saveProject(UUID.fromString(projectId));
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent pce)
+    {
+        if (pce.getPropertyName() == ExplorerManager.PROP_SELECTED_NODES)
+        {
+            // check that the project parent of any selected node is also selected
+            // and that only one project is selected
+            Node[] selected = (Node[])pce.getNewValue();
+            Set<ProjectNode> projectParents = projectsWithSelectedChildren(Arrays.asList(selected));
+            if (projectParents.size() > 1)
+            {
+                // nodes under more than one project are selected
+                // so keep the most recent selected
+                List oldSelected = Arrays.asList((Node[])pce.getOldValue());
+                // get the difference - the nodes just selected
+                List<Node> newlySelected = new ArrayList<Node>(1);
+                for (int i = 0; i < selected.length; i++) {
+                    Node node = selected[i];
+                    if (!oldSelected.contains(node)) newlySelected.add(node);
+                }
+                projectParents = projectsWithSelectedChildren(newlySelected);
+                // if there's still more than one project we'll just take the first one
+            }
+            ProjectNode activeProject = (ProjectNode)projectParents.toArray()[0];
+            Set<Node> forSelection = new HashSet<Node>(selected.length);
+            forSelection.add(activeProject);
+            for (int i = 0; i < selected.length; i++) {
+                if (getProjectParent(selected[i]) == activeProject) {
+                    forSelection.add(selected[i]);
+                }
+            }
+            try {
+                // set the selected nodes
+                Node[] forSelectionA = new Node[forSelection.size()];
+                explorerManager.setSelectedNodes(forSelection.toArray(forSelectionA));
+            } catch (PropertyVetoException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+    
+    private Set<ProjectNode> projectsWithSelectedChildren(List<Node> selectedNodes)
+    {
+        Set<ProjectNode> projectParents = new HashSet<ProjectNode>(2);
+        for (Node node : selectedNodes) {
+            ProjectNode pNode = getProjectParent(node);
+            if (!pNode.isRoot()) projectParents.add(pNode);
+        }
+        return projectParents;
+    }
+    
+    private ProjectNode getProjectParent(Node node)
+    {
+        while (!(node instanceof ProjectNode)) node = node.getParentNode();
+        return (ProjectNode)node;
     }
 }
