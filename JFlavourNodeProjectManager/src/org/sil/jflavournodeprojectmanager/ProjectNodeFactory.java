@@ -8,6 +8,8 @@ package org.sil.jflavournodeprojectmanager;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -27,6 +30,7 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
+import org.openide.windows.TopComponent;
 import org.sil.jflavourapi.JFlavourPathManager;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
@@ -35,7 +39,7 @@ import org.sil.jflavourapi.JFlavourProjectBean;
  * It needs to read the project data from an XML file
  * @author toby
  */
-public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implements ActionListener
+public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implements ActionListener, PropertyChangeListener
 {
     
     private static Path dataDirectory;
@@ -212,6 +216,33 @@ public class ProjectNodeFactory extends ChildFactory<JFlavourProjectBean> implem
     {
         String projectId = ae.getActionCommand();
         ProjectNodeFactory.saveProject(UUID.fromString(projectId));
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent pce)
+    {
+        if (pce.getPropertyName() == JFlavourProjectBean.PROP_DIRTY && (Boolean)pce.getNewValue())
+        {
+            getProjectManager().refreshTree();
+        }
+    }
+    
+    private JFlavourNodeProjectManagerTopComponent openManager = null;
+    private JFlavourNodeProjectManagerTopComponent getProjectManager()
+    {
+        if (openManager == null)
+        {
+            Set<TopComponent> opened = TopComponent.getRegistry().getOpened();
+            for (Iterator<TopComponent> it = opened.iterator(); it.hasNext();) {
+                TopComponent topComponent = it.next();
+                if (topComponent instanceof JFlavourNodeProjectManagerTopComponent)
+                {
+                    openManager = (JFlavourNodeProjectManagerTopComponent)topComponent;
+                    break;
+                }
+            }
+        }
+        return openManager;
     }
     
 }

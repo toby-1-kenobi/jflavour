@@ -237,4 +237,9 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
         while (!(node instanceof ProjectNode)) node = node.getParentNode();
         return (ProjectNode)node;
     }
+    
+    public void refreshTree()
+    {
+        root.refresh();
+    }
 }
