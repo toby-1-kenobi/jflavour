@@ -23,6 +23,7 @@ public class CategoryNodeFactory extends ChildFactory<String>
 {
     
     JFlavourProjectBean project;
+    private final String NULL_CATEGORY = "<null category>";
     
     public CategoryNodeFactory(JFlavourProjectBean project)
     {
@@ -37,12 +38,19 @@ public class CategoryNodeFactory extends ChildFactory<String>
         for (Iterator<Category> it = allCategories.iterator(); it.hasNext();) {
             list.add(it.next().toString());
         }
+        // add one category at the end for items without any category if there are any
+        if (project.hasOrphans()) list.add(NULL_CATEGORY);
         return true;
     }
     
     @Override
     protected Node createNodeForKey(String key) {
-        return new CategoryNode(new Category(key), project);
+        if (key == NULL_CATEGORY)
+        {
+            return new CategoryNode(new Category("<no category>", true), project);
+        } else {
+            return new CategoryNode(new Category(key),  project);
+        }
     }
     
 }

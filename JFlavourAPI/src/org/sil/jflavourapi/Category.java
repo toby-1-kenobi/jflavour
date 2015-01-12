@@ -16,10 +16,29 @@ package org.sil.jflavourapi;
 public final class Category implements Comparable
 {
     private final String name;
+    private boolean isNull = false;
+
+    public Category(String name, boolean isNull)
+    {
+        if (name == null)
+        {
+            this.name = "<no category>";
+            this.isNull = true;
+        }
+        else {
+            this.name = name.trim();
+            this.isNull = isNull;
+        }
+    }
 
     public Category(String name)
     {
-        this.name = name.trim();
+        this(name, false);
+    }
+    
+    public boolean isNull()
+    {
+        return isNull;
     }
 
     @Override

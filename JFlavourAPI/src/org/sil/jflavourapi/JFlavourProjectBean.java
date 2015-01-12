@@ -94,8 +94,15 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     {
         Set<JFlavourItemBean> itemsInCat = new HashSet<JFlavourItemBean>();
         for (JFlavourItemBean item : items) {
-            if (item.getCategories().contains(category)) {
-                itemsInCat.add(item);
+            if (!category.isNull()) {
+                if (item.getCategories().contains(category)) {
+                    itemsInCat.add(item);
+                }
+            } else {
+                // if category is null we are looking for items with no categories
+                if (item.getCategories().isEmpty()) {
+                    itemsInCat.add(item);
+                }
             }
         }
         return itemsInCat;
@@ -274,5 +281,14 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
                 saveTimer.start();
             }
         }
+    }
+
+    /**
+     * Test whether there are items in this project with no category.
+     * @return true if there are items in this project with no category
+     */
+    public boolean hasOrphans()
+    {
+        return !(getItemsInCategory(new Category("", true)).isEmpty());
     }
 }
