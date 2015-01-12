@@ -38,6 +38,7 @@ import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
+import org.openide.windows.WindowManager;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
@@ -237,7 +238,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             for (JComponent tool : projectDependantTools) {
                 tool.setEnabled(true);
             }
-            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
+            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject, WindowManager.getDefault().findTopComponent("JFlavourNodeProjectManagerTopComponent")), true)));
             explorerManager.getRootContext().setDisplayName("Items from selected categories");
         } else {
             // do nothing if no projects are in the lookup
@@ -254,7 +255,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     
     private void refreshIconView()
     {
-        explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject), true)));
+        explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject, WindowManager.getDefault().findTopComponent("JFlavourNodeProjectManagerTopComponent")), true)));
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.List;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.windows.TopComponent;
 import org.sil.jflavourapi.Category;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
@@ -23,18 +24,20 @@ public class ViewerItemNodeFactory extends ChildFactory<ViewerItem>
 {
     
     private JFlavourProjectBean activeProject;
+    private TopComponent projectManager;
 
-    public ViewerItemNodeFactory(JFlavourProjectBean activeProject)
+    public ViewerItemNodeFactory(JFlavourProjectBean activeProject, TopComponent projectManager)
     {
         this.activeProject = activeProject;
+        this.projectManager = projectManager;
     }
 
     @Override
     protected boolean createKeys(List<ViewerItem> list)
     {
-        Collection<? extends Category> selectedCategories = Lookup.getDefault().lookupAll(Category.class);
-        Collection<? extends JFlavourItemBean> selectedItems = Lookup.getDefault().lookupAll(JFlavourItemBean.class);
-        // if no items are catefories are selected in the prject manager
+        Collection<? extends Category> selectedCategories = projectManager.getLookup().lookupAll(Category.class);
+        Collection<? extends JFlavourItemBean> selectedItems = projectManager.getLookup().lookupAll(JFlavourItemBean.class);
+        // if no items or categories are selected in the prject manager
         // then we simply give all the items in the active project
         if (selectedCategories.isEmpty() && selectedItems.isEmpty()) {
             for (JFlavourItemBean item : activeProject.getItems()) {

@@ -33,6 +33,7 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.JFlavourProjectBean;
 
 /**
@@ -204,6 +205,7 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
                 projectParents = projectsWithSelectedChildren(newlySelected);
                 // if there's still more than one project we'll just take the first one
             }
+            
             ProjectNode activeProject = (ProjectNode)projectParents.toArray()[0];
             Set<Node> forSelection = new HashSet<Node>(selected.length);
             forSelection.add(activeProject);

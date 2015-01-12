@@ -92,13 +92,13 @@ public class JFlavourProjectBean implements Serializable, PropertyChangeListener
     
     public Set<JFlavourItemBean> getItemsInCategory(Category category)
     {
-        Set<JFlavourItemBean> items = new HashSet<JFlavourItemBean>();
+        Set<JFlavourItemBean> itemsInCat = new HashSet<JFlavourItemBean>();
         for (JFlavourItemBean item : items) {
             if (item.getCategories().contains(category)) {
-                items.add(item);
+                itemsInCat.add(item);
             }
         }
-        return items;
+        return itemsInCat;
     }
     
     public String getName()
