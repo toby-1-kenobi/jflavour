@@ -205,21 +205,22 @@ public final class JFlavourNodeProjectManagerTopComponent extends TopComponent i
                 projectParents = projectsWithSelectedChildren(newlySelected);
                 // if there's still more than one project we'll just take the first one
             }
-            
-            ProjectNode activeProject = (ProjectNode)projectParents.toArray()[0];
-            Set<Node> forSelection = new HashSet<Node>(selected.length);
-            forSelection.add(activeProject);
-            for (int i = 0; i < selected.length; i++) {
-                if (getProjectParent(selected[i]) == activeProject) {
-                    forSelection.add(selected[i]);
+            if (projectParents.size() > 0) {
+                ProjectNode activeProject = (ProjectNode)projectParents.toArray()[0];
+                Set<Node> forSelection = new HashSet<Node>(selected.length);
+                forSelection.add(activeProject);
+                for (int i = 0; i < selected.length; i++) {
+                    if (getProjectParent(selected[i]) == activeProject) {
+                        forSelection.add(selected[i]);
+                    }
                 }
-            }
-            try {
-                // set the selected nodes
-                Node[] forSelectionA = new Node[forSelection.size()];
-                explorerManager.setSelectedNodes(forSelection.toArray(forSelectionA));
-            } catch (PropertyVetoException ex) {
-                Exceptions.printStackTrace(ex);
+                try {
+                    // set the selected nodes
+                    Node[] forSelectionA = new Node[forSelection.size()];
+                    explorerManager.setSelectedNodes(forSelection.toArray(forSelectionA));
+                } catch (PropertyVetoException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         }
     }
