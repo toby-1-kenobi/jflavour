@@ -29,6 +29,8 @@ public class PlayAudioAction extends NodeAction
                     ((ViewerItemNode)nodes[i]).getItem().getDefaultAudio().play();
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
+                } catch (IndexOutOfBoundsException e) {
+                    //TODO: indicate to the user there's no audio associated with this item
                 }
             }
         }
