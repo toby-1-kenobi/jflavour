@@ -38,6 +38,8 @@ import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
+import org.openide.util.actions.NodeAction;
+import org.openide.util.actions.SystemAction;
 import org.openide.windows.WindowManager;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.JFlavourItemBean;
@@ -77,7 +79,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         
         // add listener to monitor change in the System FileSystem
         systemFsTools.addFileChangeListener(new FileChangeAdapter() {
-            // Only interested when other modules create or delete files in our directory
+            // Only interested when other modules create or deleteAction files in our directory
             // then we just rebuild the tools control panel
             @Override
             public void fileDataCreated(FileEvent fe) {initControlPanel();}
@@ -172,6 +174,11 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             }
             panelTools.add(btn);
         }
+        Collection<? extends NodeAction> allTools = viewerControlsResult.allInstances();
+        for (NodeAction action : allTools) {
+            JButton btn = new JButton(action);
+            panelTools.add(btn);
+        }
         panelTools.revalidate();
     }
     
@@ -180,9 +187,12 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     private JPanel panelTools;
     private JLabel labelActiveProject;
     
+    private NodeAction deleteAction;
+    
     private JFlavourProjectBean activeProject;
     
     private Lookup.Result<JFlavourProjectBean> projectResult = null;
+    private Lookup.Result<NodeAction> viewerControlsResult = null;
     private FileObject systemFsTools;
     
     // keep a list of components that can only be used when items are selected
@@ -201,8 +211,15 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     @Override
     public void componentOpened()
     {
+        deleteAction = SystemAction.get( ItemDeleteAction.class );
+        CentralLookup.getDefault().add(deleteAction);
+        
         projectResult = Utilities.actionsGlobalContext().lookupResult(JFlavourProjectBean.class);
-        projectResult.addLookupListener (this);
+        projectResult.addLookupListener(this);
+        
+        viewerControlsResult = CentralLookup.getDefault().lookupResult(NodeAction.class);
+        viewerControlsResult.addLookupListener(this);
+        
         initControlPanel();
     }
 
@@ -210,6 +227,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     public void componentClosed()
     {
         projectResult.removeLookupListener(this);
+        viewerControlsResult.removeLookupListener(this);
+        CentralLookup.getDefault().remove(deleteAction);
     }
 
     void writeProperties(java.util.Properties p)
@@ -229,19 +248,35 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     @Override
     public void resultChanged(LookupEvent le)
     {
-        Collection<? extends JFlavourProjectBean> allProjects = projectResult.allInstances();
-        if (!allProjects.isEmpty()) {
-            if (activeProject != null) activeProject.removePropertyChangeListener(this);
-            activeProject = allProjects.iterator().next();
-            activeProject.addPropertyChangeListener(this);
-            labelActiveProject.setText(activeProject.getName());
-            for (JComponent tool : projectDependantTools) {
-                tool.setEnabled(true);
+        Object eventSource = le.getSource();
+        if (eventSource == projectResult)
+        {
+            // when a different project is selected in the project manager we need to respond here
+            Collection<? extends JFlavourProjectBean> allProjects = projectResult.allInstances();
+            if (!allProjects.isEmpty()) {
+                if (activeProject != null) activeProject.removePropertyChangeListener(this);
+                activeProject = allProjects.iterator().next();
+                activeProject.addPropertyChangeListener(this);
+                labelActiveProject.setText(activeProject.getName());
+                for (JComponent tool : projectDependantTools) {
+                    tool.setEnabled(true);
+                }
+                explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject, WindowManager.getDefault().findTopComponent("JFlavourNodeProjectManagerTopComponent")), true)));
+                explorerManager.getRootContext().setDisplayName("Items from selected categories");
+            } else {
+                // do nothing if no projects are in the lookup
             }
-            explorerManager.setRootContext(new AbstractNode(Children.create(new ViewerItemNodeFactory(activeProject, WindowManager.getDefault().findTopComponent("JFlavourNodeProjectManagerTopComponent")), true)));
-            explorerManager.getRootContext().setDisplayName("Items from selected categories");
-        } else {
-            // do nothing if no projects are in the lookup
+        }
+        else if (eventSource == viewerControlsResult)
+        {
+            // the set of controls available for nodes in the viewer has changed, so we reinitialise the control panel
+            initControlPanel();
+        }
+        else
+        {
+            // if we get here we're listening to a lookup result we don't know about
+            // shouldn't happen, but throw an exception for completeness of code.
+            throw new RuntimeException("Unidentified lookup result changed. " + eventSource.toString());
         }
     }
     
@@ -285,6 +320,13 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                     tool.setEnabled(false);
                 }
             }
+            /* for the NodeActions the enabling is handled in-house, but I don't know how the action
+            gets to know which nodes are enabled. I might have to put these actions on the nodes to get them
+            to work properly
+            Collection<? extends NodeAction> allTools = viewerControlsResult.allInstances();
+            for (NodeAction action : allTools) {
+                action.setEnabled(action.enable(selected));
+            }*/
             refreshIconView();
         }
         // if an item has been added to or deleted from the project then refresh the nodes
