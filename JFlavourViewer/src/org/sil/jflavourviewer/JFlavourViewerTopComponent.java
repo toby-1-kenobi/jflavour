@@ -44,6 +44,7 @@ import org.openide.windows.WindowManager;
 import org.sil.jflavourapi.CentralLookup;
 import org.sil.jflavourapi.JFlavourItemBean;
 import org.sil.jflavourapi.JFlavourProjectBean;
+import org.sil.jflavourviewer.api.ViewerAction;
 
 /**
  * Top component which displays something.
@@ -174,8 +175,8 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
             }
             panelTools.add(btn);
         }
-        Collection<? extends NodeAction> allTools = viewerControlsResult.allInstances();
-        for (NodeAction action : allTools) {
+        Collection<? extends ViewerAction> allTools = viewerControlsResult.allInstances();
+        for (ViewerAction action : allTools) {
             JButton btn = new JButton(action);
             panelTools.add(btn);
         }
@@ -192,7 +193,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
     private JFlavourProjectBean activeProject;
     
     private Lookup.Result<JFlavourProjectBean> projectResult = null;
-    private Lookup.Result<NodeAction> viewerControlsResult = null;
+    private Lookup.Result<ViewerAction> viewerControlsResult = null;
     private FileObject systemFsTools;
     
     // keep a list of components that can only be used when items are selected
@@ -217,7 +218,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
         projectResult = Utilities.actionsGlobalContext().lookupResult(JFlavourProjectBean.class);
         projectResult.addLookupListener(this);
         
-        viewerControlsResult = CentralLookup.getDefault().lookupResult(NodeAction.class);
+        viewerControlsResult = CentralLookup.getDefault().lookupResult(ViewerAction.class);
         viewerControlsResult.addLookupListener(this);
         
         initControlPanel();
@@ -305,6 +306,7 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                 tool.setEnabled(false);
             }
             explorerManager.setRootContext(new AbstractNode(Children.LEAF));
+            refreshIconView();
         }
         // if the selection of nodes for this component has changed
         if (pce.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES))
@@ -320,14 +322,10 @@ public final class JFlavourViewerTopComponent extends TopComponent implements Lo
                     tool.setEnabled(false);
                 }
             }
-            /* for the NodeActions the enabling is handled in-house, but I don't know how the action
-            gets to know which nodes are enabled. I might have to put these actions on the nodes to get them
-            to work properly
-            Collection<? extends NodeAction> allTools = viewerControlsResult.allInstances();
-            for (NodeAction action : allTools) {
-                action.setEnabled(action.enable(selected));
-            }*/
-            refreshIconView();
+            Collection<? extends ViewerAction> allTools = viewerControlsResult.allInstances();
+            for (ViewerAction action : allTools) {
+                action.setEnabled(selected);
+            }
         }
         // if an item has been added to or deleted from the project then refresh the nodes
         if (pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEM) || pce.getPropertyName().equals(JFlavourProjectBean.PROP_ITEMS))

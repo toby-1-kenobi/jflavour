@@ -10,13 +10,16 @@ import javax.swing.JOptionPane;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.NodeAction;
+import org.sil.jflavourviewer.api.ViewerAction;
 
 /**
  *
  * @author toby
  */
-public class ItemDeleteAction extends NodeAction
+public class ItemDeleteAction extends NodeAction implements ViewerAction
 {
+    
+    Node[] selected = new Node[0];
 
     @Override
     protected void performAction(Node[] nodes)
@@ -33,6 +36,12 @@ public class ItemDeleteAction extends NodeAction
                 node.destroy();
             }
         }
+    }
+    
+    @Override
+    public void performAction()
+    {
+        performAction(selected);
     }
 
     @Override
@@ -55,6 +64,15 @@ public class ItemDeleteAction extends NodeAction
     public HelpCtx getHelpCtx()
     {
         return HelpCtx.DEFAULT_HELP;
+    }
+
+    @Override
+    public boolean setEnabled(Node[] selected)
+    {
+        this.selected = selected;
+        boolean enable = enable(selected);
+        setEnabled(enable);
+        return enable;
     }
     
 }
